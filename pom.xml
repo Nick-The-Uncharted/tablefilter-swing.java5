@@ -3,7 +3,7 @@
 	<groupId>net.coderazzi</groupId>
 	<artifactId>tablefilter-swing-java5</artifactId>
 	<packaging>jar</packaging>
-	<version>3.0.2-SNAPSHOT</version>
+	<version>3.1.0-SNAPSHOT</version>
 	<name>tablefilter-swing-java5</name>
 	<description>TableFilter is a set of Swing components to support user-driven filtering on table.
 This project corresponds to the Java5 version</description>
@@ -98,7 +98,7 @@ This project corresponds to the Java5 version</description>
 		<repository>
 			<id>sonatype-nexus-staging</id>
 			<name>Nexus Release Repository</name>
-			<url>http://oss.sonatype.org/content/repositories/snapshots</url>
+			<url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
 	<profiles>
