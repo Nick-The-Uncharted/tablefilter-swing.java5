@@ -22,11 +22,12 @@ import net.coderazzi.filters.gui.editor.FilterEditor;
 @SuppressWarnings("serial")
 public class EventsWindow extends JDialog implements IFilterHeaderObserver{
 	
+	TableModel tableModel;
 	private static final String EXCLUDED = "Excluded";
 	private static final String CREATED = "Created";
-	static Class<?> COLUMN_CLASSES[]={String.class, Integer.class, String.class, String.class};
 	static String COLUMN_NAMES[]={"Event", "Column", "Content.type", "Content"};
-	TableModel tableModel;
+	static Class<?> COLUMN_CLASSES[]=
+		{String.class, Integer.class, String.class, String.class};
 	
 	class Event{
 		String name;
@@ -82,8 +83,8 @@ public class EventsWindow extends JDialog implements IFilterHeaderObserver{
 			} else {
 				c=Color.blue;
 			}
-			Component ret= super.getTableCellRendererComponent(table, value==null? "" : value, isSelected, hasFocus,
-					row, column);
+			Component ret= super.getTableCellRendererComponent(table, 
+					value==null? "" : value, isSelected, hasFocus, row, column);
 			ret.setForeground(c);
 			return ret;
 		}
@@ -108,21 +109,24 @@ public class EventsWindow extends JDialog implements IFilterHeaderObserver{
 		});
 	}
 	
-	public void tableFilterEditorCreated(TableFilterHeader header, FilterEditor editor) {
+	public void tableFilterEditorCreated(TableFilterHeader header, 
+			FilterEditor editor) {
 		Event event = new Event();
 		event.name=CREATED;
 		event.column=editor.getFilterPosition();
 		tableModel.addEvent(event);
 	}
 	
-	public void tableFilterEditorExcluded(TableFilterHeader header, FilterEditor editor) {
+	public void tableFilterEditorExcluded(TableFilterHeader header, 
+			FilterEditor editor) {
 		Event event = new Event();
 		event.name=EXCLUDED;
 		event.column=editor.getFilterPosition();
 		tableModel.addEvent(event);
 	}
 	
-	public void tableFilterUpdated(TableFilterHeader header, FilterEditor editor) {
+	public void tableFilterUpdated(TableFilterHeader header, 
+			FilterEditor editor) {
 		Event event = new Event();
 		event.name="Updated";
 		event.column=editor.getFilterPosition();
