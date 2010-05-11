@@ -36,12 +36,13 @@ import javax.swing.table.TableModel;
 /**
  * <p>Implementation of a {@link ITableModelFilter}</p>
  *
- * <p>It tries to mimic the behaviour in the Java 6 model. In special, updates to the model do not
- * imply reapplying the filter in the modified rows.</p>
+ * <p>It tries to mimic the behaviour in the Java 6 model. In special, updates 
+ * to the model do not imply reapplying the filter in the modified rows.</p>
  *
  * @author  Luis M Pena - lu@coderazzi.net
  */
-public class TableModelFilter extends AbstractTableModel implements ITableModelFilter {
+public class TableModelFilter extends AbstractTableModel 
+                              implements ITableModelFilter {
 
 	private static final long serialVersionUID = 8464799419424149436L;
 
@@ -52,7 +53,8 @@ public class TableModelFilter extends AbstractTableModel implements ITableModelF
     private int validRows = 0;
 
     /**
-     * Mapping from model rows to view rows; it only contains valid information if viewMap is true
+     * Mapping from model rows to view rows; it only contains valid information 
+     * if viewMap is true
      */
     private int[] viewsMapper = new int[0];
 
@@ -71,7 +73,6 @@ public class TableModelFilter extends AbstractTableModel implements ITableModelF
     /** The attached table model */
     TableModel tableModel;
 
-
     /**
      * Constructor
      */
@@ -79,7 +80,6 @@ public class TableModelFilter extends AbstractTableModel implements ITableModelF
 
         setModel(model);
     }
-
 
     /**
      * Updates the model used beneath the TableModelFilter
@@ -108,14 +108,12 @@ public class TableModelFilter extends AbstractTableModel implements ITableModelF
         reapplyFilter();
     }
 
-
     /**
      * @see  ITableModelFilter#getModel()
      */
     public TableModel getModel() {
         return tableModel;
     }
-
 
     /**
      * @see  ITableModelFilter#setRowFilter(RowFilter)
@@ -125,7 +123,6 @@ public class TableModelFilter extends AbstractTableModel implements ITableModelF
         reapplyFilter();
         fireTableDataChanged();
     }
-
 
     /**
      * Returns the location of index in terms of the underlying model.
@@ -163,7 +160,6 @@ public class TableModelFilter extends AbstractTableModel implements ITableModelF
         return ret;
     }
 
-
     /**
      * Reapplies the filter, updating the rowsMapper and validRows private variables
      */
@@ -182,45 +178,40 @@ public class TableModelFilter extends AbstractTableModel implements ITableModelF
         }
     }
 
-
     @Override public Class<?> getColumnClass(int columnIndex) {
         return tableModel.getColumnClass(columnIndex);
     }
-
 
     @Override public String getColumnName(int column) {
         return tableModel.getColumnName(column);
     }
 
-
     public int getColumnCount() {
         return tableModel.getColumnCount();
     }
-
 
     public int getRowCount() {
         return validRows;
     }
 
-
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return tableModel.getValueAt(convertRowIndexToModel(rowIndex), columnIndex);
+        return tableModel.getValueAt(convertRowIndexToModel(rowIndex), 
+        		                     columnIndex);
     }
-
 
     @Override public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return tableModel.isCellEditable(convertRowIndexToModel(rowIndex), columnIndex);
+        return tableModel.isCellEditable(convertRowIndexToModel(rowIndex), 
+        		                         columnIndex);
     }
-
 
     @Override public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        tableModel.setValueAt(value, convertRowIndexToModel(rowIndex), columnIndex);
+        tableModel.setValueAt(value, convertRowIndexToModel(rowIndex), 
+        		              columnIndex);
     }
 
-
     /**
-     * Private implementation of the {@link RowFilter.Entry}, to access the elements in the table
-     * row
+     * Private implementation of the {@link RowFilter.Entry}, 
+     * to access the elements in the table row
      */
     class RowFilterEntry extends RowFilter.Entry {
         int columns;
@@ -231,9 +222,9 @@ public class TableModelFilter extends AbstractTableModel implements ITableModelF
         }
     }
 
-
     /**
-     * Private {@link TableModelListener} to follow the original table model changes.
+     * Private {@link TableModelListener}
+     * to follow the original table model changes.
      */
     class TableListener implements TableModelListener {
         public void tableChanged(TableModelEvent e) {
@@ -242,7 +233,8 @@ public class TableModelFilter extends AbstractTableModel implements ITableModelF
             } else if (e.getFirstRow() == TableModelEvent.HEADER_ROW) {
                 handleModifiedModel();
                 fireTableChanged(e);
-            } else if (e.getType() == TableModelEvent.UPDATE && e.getLastRow()!=Integer.MAX_VALUE) {
+            } else if (e.getType() == TableModelEvent.UPDATE 
+            		   && e.getLastRow()!=Integer.MAX_VALUE) {
                 fireTableChanged(e);
             } else {
                 reapplyFilter();

@@ -29,7 +29,8 @@ import javax.swing.table.TableModel;
 
 
 /**
- * <p>The table used for filtering must set a {@link TableModel} implementing this interface.</p>
+ * <p>The table used for filtering must set a {@link TableModel} 
+ * implementing this interface.</p>
  *
  * @author  Luis M Pena - lu@coderazzi.net
  */
@@ -41,7 +42,8 @@ public interface ITableModelFilter {
     public TableModel getModel();
 
     /**
-     * Sets the filter that determines which rows, if any, should be hidden from the view.
+     * Sets the filter that determines which rows, if any, 
+     * should be hidden from the view.
      */
     public void setRowFilter(RowFilter filter);
 }

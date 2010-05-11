@@ -33,44 +33,50 @@ import net.coderazzi.filters.artifacts.RowFilter;
 import net.coderazzi.filters.artifacts.TableModelFilter;
 
 
-
 /**
- * <p>TableFilter represents a {@link RowFilter} instance that can be attached to a
- * {@link javax.swing.JTable} to compose dynamically the outcome of one or more filter editors. As
- * such, it is a dynamic filter, which updates the table when there are changes in any of the
- * composed sub filters.</p>
+ * <p>TableFilter represents a {@link RowFilter} instance that can 
+ * be attached to a {@link javax.swing.JTable} to compose dynamically the 
+ * outcome of one or more filter editors. As such, it is a dynamic filter, 
+ * which updates the table when there are changes in any of the composed 
+ * sub filters.</p>
  *
- * <p>Users require instancing TableFilter instances only when managing their own filter editors.
- * Note that the {@link net.coderazzi.filters.gui.TableFilterHeader} already handles its own
- * TableFilter, and keeps track of any table changes, updating automatically the editors.</p>
+ * <p>Users require instancing TableFilter instances only when managing their 
+ * own filter editors.
+ * Note that the {@link net.coderazzi.filters.gui.TableFilterHeader} already 
+ * handles its own TableFilter, and keeps track of any table changes, 
+ * updating automatically the editors.</p>
  * </p>
  *
- * <p>When users instanciate directly TableFilter objects, care must be taken to update the
- * associated editors when the table model changes.</p>
+ * <p>When users instanciate directly TableFilter objects, care must be taken 
+ * to update the associated editors when the table model changes.</p>
  *
- * <p>In Java 5, the {@link javax.swing.JTable} has no sorting or filtering capabilities, so the
- * implementation of the TableFilter is slightly different in Java 5 and 6. When the table is
- * attached, it should contain already the model to filter, and the model itself should be an
- * instance of {@link ITableModelFilter}. If this is not the case, the TableFilter automatically
- * creates a (@link ITableModelFilter} and attaches it to the table.</p>
+ * <p>In Java 5, the {@link javax.swing.JTable} has no sorting or filtering 
+ * capabilities, so the implementation of the TableFilter is slightly 
+ * different in Java 5 and 6. When the table is attached, it should contain 
+ * already the model to filter, and the model itself should be an instance of 
+ * {@link ITableModelFilter}. If this is not the case, the TableFilter 
+ * automatically creates a (@link ITableModelFilter} and attaches it to 
+ * the table.</p>
  *
- * <p>It is important, therefore, not to override afterwards the model in the table, or, if this is
- * done, it is needed to invoke {@link TableFilter#setModel(TableModel)} on the TableFilter.</p>
+ * <p>It is important, therefore, not to override afterwards the model in 
+ * the table, or, if this is done, it is needed to invoke 
+ * {@link TableFilter#setModel(TableModel)} on the TableFilter.</p>
  *
  * @author  Luis M Pena - lu@coderazzi.net
  */
 public class TableFilter extends AndFilter {
 
     /**
-     * sendNotifications is used internally as a semaphore to disable temporarily notifications to
-     * the filter observers. Notifications are only sent to the observers when this variable is non
-     * negative.
+     * sendNotifications is used internally as a semaphore to disable 
+     * temporarily notifications to the filter observers. Notifications 
+     * are only sent to the observers when this variable is non negative.
      */
     int sendNotifications = 0;
 
     /**
-     * pendingNotifications keeps track of notifications to be sent to the observers, but were
-     * discarded because the variable sendNotifications was false.
+     * pendingNotifications keeps track of notifications to be sent to the 
+     * observers, but were discarded because the variable sendNotifications 
+     * was negative.
      */
     private boolean pendingNotifications;
 
@@ -123,23 +129,23 @@ public class TableFilter extends AndFilter {
         return table;
     }
 
-
     /**
-     * Method to set the associated model. If the tableModel associated to the table does not
-     * implement the {@link ITableModelFilter} interface, one is automatically created
+     * Method to set the associated model.<br>
+     * If the tableModel associated to the table does not implement the 
+     * {@link ITableModelFilter} interface, one is automatically created
      */
     public void setModel(TableModel tableModel) {
         getRowFilter(tableModel);
     }
 
-
     /**
-     * <p>Temporarily enable/disable notifications to the observers, including the registered
-     * {@link javax.swing.JTable}.</p>
+     * <p>Temporarily enable/disable notifications to the observers, including 
+     * the registered {@link javax.swing.JTable}.</p>
      *
-     * <p>Multiple calls to this method can be issued, but the caller must ensure that there are as
-     * many calls with true parameter as with false parameter, as the notifications are only
-     * re-enabled when the zero balance is reached.</p>
+     * <p>Multiple calls to this method can be issued, but the caller must 
+     * ensure that there are as many calls with true parameter as with false 
+     * parameter, as the notifications are only re-enabled when the zero 
+     * balance is reached.</p>
      */
     public boolean enableNotifications(boolean enable) {
         sendNotifications += enable ? 1 : -1;
@@ -151,11 +157,11 @@ public class TableFilter extends AndFilter {
     }
 
     /**
-     * <p>Method to force the sending of notifications, even if they are currently temporarily
-     * disabled.</p>
+     * <p>Method to force the sending of notifications, even if they are 
+     * currently temporarily disabled.</p>
      *
-     * <p>Note that, in any case, the update notification is only sent if there is any pending
-     * notifications.</p>
+     * <p>Note that, in any case, the update notification is only sent if 
+     * there is any pending notifications.</p>
      */
     public void sendPendingNotifications() {
         if (pendingNotifications) {
@@ -164,8 +170,8 @@ public class TableFilter extends AndFilter {
     }
 
     /**
-     * Internal method to send a notification to the observers, verifying first if the notifications
-     * are currently enabled.
+     * Internal method to send a notification to the observers, verifying 
+     * first if the notifications are currently enabled.
      */
     void notifyUpdatedFilter(boolean forced) {
         if (forced || (sendNotifications < 0)) {
@@ -177,7 +183,8 @@ public class TableFilter extends AndFilter {
     }
 
     /**
-     * Internal method to send without further checks a notification to the observers.
+     * Internal method to send without further checks a notification 
+     * to the observers.
      */
     private boolean sendFilterUpdateNotification() {
     	if (table!=null){
@@ -190,7 +197,8 @@ public class TableFilter extends AndFilter {
     }
 
     /**
-     * Returns the row filter associated to the current table, creating a default one if none.
+     * Returns the row filter associated to the current table, 
+     * creating a default one if none.
      */
     private ITableModelFilter getRowFilter(TableModel tableModel) {
         if (tableModel instanceof ITableModelFilter) {
@@ -202,6 +210,5 @@ public class TableFilter extends AndFilter {
 
         return modelFilter;
     }
-
 
 }
