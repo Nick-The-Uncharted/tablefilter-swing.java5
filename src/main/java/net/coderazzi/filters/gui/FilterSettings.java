@@ -40,14 +40,8 @@ import net.coderazzi.filters.parser.Types;
  * (which could be not available, anyway)
  */
 public class FilterSettings {
-    /**
-     * Set to true to perform automatically the selection of a row that is 
-     * uniquely identified by the existing filter. It is true by default.
-     */
-    public static boolean autoSelection = 
-    	Boolean.parseBoolean(getString("AutoSelection", "true"));
 
-    /** Whether to automatically fill with content the editor field's options */
+	/** Whether to automatically fill with content the editor field's options */
     public static boolean autoOptions = 
     	Boolean.parseBoolean(getString("AutoOptions", "false"));
 
