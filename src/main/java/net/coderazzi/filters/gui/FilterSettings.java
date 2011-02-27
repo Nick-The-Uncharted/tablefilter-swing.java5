@@ -26,136 +26,225 @@
 package net.coderazzi.filters.gui;
 
 import java.awt.Color;
+import java.awt.Font;
 
-import net.coderazzi.filters.IFilterTextParser;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+
+import net.coderazzi.filters.IParser;
 import net.coderazzi.filters.gui.TableFilterHeader.Position;
-import net.coderazzi.filters.gui.editor.FilterEditor;
-import net.coderazzi.filters.parser.FilterTextParser;
-import net.coderazzi.filters.parser.Types;
 
 
 /**
  * Class to define some common settings to the TableFilter library.<br>
- * It is just a sugar replacement to using directly system properties 
- * (which could be not available, anyway)
+ * It is just a sugar replacement to using directly system properties (which
+ * could be not available, anyway)
  */
 public class FilterSettings {
 
-	/** Whether to automatically fill with content the editor field's options */
-    public static boolean autoOptions = 
-    	Boolean.parseBoolean(getString("AutoOptions", "false"));
-
-    /** Whether to ignore case or not, false by default (case sensitive) */
-    public static boolean ignoreCase = 
-    	Boolean.parseBoolean(getString("IgnoreCase", "false"));
-
-    /** The header position, {@link Position#INLINE} by default. */
-    public static Position headerPosition = 
-    	Position.valueOf(getString("Header.Position", "INLINE"));
-
-    /** The default date format, used on the default text parser */
-    public static String dateFormat = getString("DateFormat", null);
-
-    /** The default operator used on the text parser */
-    public static String defaultOperator = getString("DefaultOperator", "~");
-    
-    /** The maximum number of visible tows on the popup menus */
-    public static int maxVisiblePopupRows = getInteger("Popup.maxVisibleRows", 8);
-    
-    /** The maximum size of the history when no options are present */
-    public static int maxPopupHistory = getInteger("Popup.maxHistory", 2);
-    
-    /** The color of the header background */
-    public static Color headerBackground = null;
-
-    /** The color of the header foreground */
-    public static Color headerForeground = null;
-
-    /** The types used by default on the parser */
-    public static Types types = new Types();
+    /** Properties must be defined with this prefix. */
+    public final static String PROPERTIES_PREFIX = "net.coderazzi.filters.";
 
     /**
-     * The class to handle the text parsing by default.<br>
-     * It must have a default constructor. <br>
-     * It corresponds to the property TextParser.class
+     * Set to true to perform automatically the selection of a row that is
+     * uniquely identified by the existing filter. It is true by default.
      */
-    public static Class<? extends IFilterTextParser> filterTextParserClass;
+    public static boolean autoSelection = Boolean.parseBoolean(getString(
+                "AutoSelection", "true"));
 
-    /** The class implementing the {@link FilterEditor} */
-    public static Class<? extends FilterEditor> filterEditorClass;
+    /**
+     * Whether to automatically fill with content the editor field's choices.
+     */
+    public static AutoChoices autoChoices;
 
-    /** Creates a FilterEditor as defined by default */
-    public static FilterEditor newFilterEditor() {
+    /** Whether to enable adaptive choices, true by default. */
+    public static boolean adaptiveChoices = Boolean.parseBoolean(getString(
+                "AdaptiveChoices", "true"));
+
+    /** Whether to ignore case or not, false by default (case sensitive). */
+    public static boolean ignoreCase = Boolean.parseBoolean(getString(
+                "IgnoreCase", "true"));
+
+    /** The header position, {@link Position#INLINE} by default. */
+    public static Position headerPosition = Position.valueOf(getString(
+                "Header.Position", "INLINE"));
+
+    /** The default date format, used on the default filter model. */
+    public static String dateFormat = getString("DateFormat", null);
+
+    /** The maximum number of visible tows on the popup menus. */
+    public static int maxVisiblePopupRows = getInteger("Popup.maxVisibleRows",
+            8);
+
+    /** The maximum size of the history when no choices are present. */
+    public static int maxPopupHistory = getInteger("Popup.maxHistory", 2);
+
+    /** The default icon used to represent null/empty values. */
+    public static Icon matchEmptyFilterIcon = new ImageIcon(IParser.class
+                .getResource("resources/matchEmptyIcon.png"));
+
+    /**
+     * The default string associated to a nop operation.
+     *
+     * <p>It is chosen as = because that is the expression that the default text
+     * parser can use to find null/empty values. If any other parse is chosen,
+     * it could be meaningful to update this string.</p>
+     */
+    public static String matchEmptyFilterString = "=";
+
+    /** Header's background color. */
+    public static Color backgroundColor = getColor("backgroundColor", null);
+
+    /** Header's foreground color. */
+    public static Color foregroundColor = getColor("foregroundColor", null);
+
+    /** Header's error color. */
+    public static Color errorColor = getColor("errorColor", Color.red);
+
+    /** Header's grid color. */
+    public static Color gridColor = getColor("gridColor", null);
+
+    /** Header's disabled color. */
+    public static Color disabledColor = getColor("disabledColor", null);
+
+    /** Header's disabled color. */
+    public static Color disabledBackgroundColor = getColor(
+            "disabledBackgroundColor", null);
+
+    /** Header's selection background color. */
+    public static Color selectionBackgroundColor = getColor(
+            "selectionBackgroundColor", null);
+
+    /** Header's selection foreground color. */
+    public static Color selectionForegroundColor = getColor(
+            "selectionForegroundColor", null);
+
+    /** Header's selection color. */
+    public static Color selectionColor = getColor("selectionColor", null);
+
+    /** Header's font. */
+    public static Font font;
+
+    /**
+     * The class defining the generic {@link IParserModel}<br>
+     * It must have a default constructor.<br>
+     * It corresponds to the property ParserModel.class
+     */
+    public static Class<? extends IParserModel> parserModelClass;
+
+    /**
+     * The class defining the generic {@link IParserModel}<br>
+     * It must have a default constructor.<br>
+     * It corresponds to the property ParserModel.class
+     */
+    public static Class<? extends CustomChoiceDecorator> customChoiceDecoratorClass;
+
+    /** Creates a TextParser as defined by default. */
+    public static IParserModel newParserModel() {
         try {
-        	return filterEditorClass.newInstance();
+            return parserModelClass.newInstance();
         } catch (Exception ex) {
-            throw new RuntimeException("Error creating filter editor of type "
-                                       + filterEditorClass, ex);
+            throw new RuntimeException("Error creating parser model of type "
+                + parserModelClass, ex);
         }
     }
 
-    /** Creates a TextParser as defined by default */
-    public static IFilterTextParser newTextParser() {
+    /** Creates a CustomChoiceDecorator as defined by default. */
+    public static CustomChoiceDecorator newCustomChoiceDecorator() {
         try {
-            IFilterTextParser ret = filterTextParserClass.newInstance();
-            ret.setIgnoreCase(ignoreCase);
-            ret.setDefaultOperator(defaultOperator);
-            types.configure(ret);
-            return ret;
+            return customChoiceDecoratorClass.newInstance();
         } catch (Exception ex) {
-            throw new RuntimeException("Error creating filter text parser of type "
-                                       + filterTextParserClass, ex);
+            throw new RuntimeException("Error creating decorator of type "
+                + customChoiceDecoratorClass, ex);
         }
     }
 
     static {
-        filterTextParserClass = FilterTextParser.class;
-        String cl = getString("TextParser.class", null);
+        try {
+            font = Font.decode(getString("font"));
+        } catch (Exception ex) {
+            // font remains null
+        }
+
+        try {
+            autoChoices = AutoChoices.valueOf(getString("AutoChoices",
+                        "ENUMS"));
+        } catch (Exception ex) {
+            autoChoices = AutoChoices.ENUMS;
+        }
+
+        parserModelClass = ParserModel.class;
+
+        String cl = getString("ParserModel.class", null);
         if (cl != null) {
             try {
-                filterTextParserClass = (Class<? extends IFilterTextParser>) 
-                                        Class.forName(cl);
+                parserModelClass = (Class<? extends IParserModel>) Class
+                        .forName(cl);
             } catch (ClassNotFoundException cne) {
                 throw new RuntimeException(
-                		"Error finding filter text parser of class " + cl, cne);
+                    "Error finding filter model of class " + cl, cne);
             } catch (ClassCastException cce) {
-                throw new RuntimeException(
-                		"Filter text parser of class " + cl
-                        + " is not a valid IFilterTextParser class");
+                throw new RuntimeException("Filter model of class " + cl
+                    + " is not a valid IParserModel class");
             }
         }
-        filterEditorClass = FilterEditor.class;
-        cl = getString("FilterEditor.class", null);
+
+        customChoiceDecoratorClass =
+            CustomChoiceDecorator.DefaultDecorator.class;
+        cl = getString("CustomChoiceDecorator.class", null);
         if (cl != null) {
             try {
-            	filterEditorClass = (Class<? extends FilterEditor>) 
-            	                    Class.forName(cl);
+                customChoiceDecoratorClass =
+                    (Class<? extends CustomChoiceDecorator>) Class.forName(cl);
             } catch (ClassNotFoundException cne) {
                 throw new RuntimeException(
-                		"Error finding filter editor of class " + cl, cne);
+                    "Error finding choice decorator of class " + cl, cne);
             } catch (ClassCastException cce) {
                 throw new RuntimeException(
-                		"Filter editor of class " + cl
-                        + " is not a valid FilterEditor class");
+                    "CustomChoiceDecorator model of class " + cl
+                    + " is not a valid CustomChoiceDecorator class");
             }
         }
     }
 
-    private static String getString(String name,
-                                    String defaultValue) {
+    private static String getString(String name, String defaultValue) {
+        String ret = getString(name);
+
+        return (ret == null) ? defaultValue : ret;
+    }
+
+    private static String getString(String name) {
         try {
-            return System.getProperty(name, defaultValue);
+            return System.getProperty(PROPERTIES_PREFIX + name);
         } catch (Exception ex) {
-            return defaultValue;
+            return null;
         }
     }
-    
+
     private static int getInteger(String name, int defaultValue) {
-		try {
-			return Integer.valueOf(System.getProperty(name));
-		} catch (Exception ex) {
-			return defaultValue;
-		}
+        String ret = getString(name);
+        if (ret != null) {
+            try {
+                return Integer.valueOf(ret);
+            } catch (Exception ex) {
+                // return defaultValue
+            }
+        }
+
+        return defaultValue;
     }
-       
+
+    private static Color getColor(String name, Color defaultValue) {
+        String prop = getString(name);
+        if (prop != null) {
+            try {
+                return Color.decode(prop);
+            } catch (Exception ex) {
+                // return defaultValue
+            }
+        }
+
+        return defaultValue;
+    }
+
 }

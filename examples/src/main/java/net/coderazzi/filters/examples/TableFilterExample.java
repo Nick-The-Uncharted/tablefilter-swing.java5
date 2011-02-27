@@ -27,14 +27,28 @@ package net.coderazzi.filters.examples;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+
 import java.text.Format;
+
+import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
@@ -47,463 +61,947 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.LookAndFeel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
-import net.coderazzi.filters.UserFilter;
+import net.coderazzi.filters.Filter;
+import net.coderazzi.filters.IFilter;
+import net.coderazzi.filters.artifacts.RowFilter;
 import net.coderazzi.filters.artifacts.TableModelFilter;
+import net.coderazzi.filters.examples.utils.AgeCustomChoice;
 import net.coderazzi.filters.examples.utils.CenteredRenderer;
 import net.coderazzi.filters.examples.utils.EventsWindow;
 import net.coderazzi.filters.examples.utils.FlagRenderer;
 import net.coderazzi.filters.examples.utils.TestData;
 import net.coderazzi.filters.examples.utils.TestTableModel;
+import net.coderazzi.filters.gui.AutoChoices;
+import net.coderazzi.filters.gui.CustomChoice;
 import net.coderazzi.filters.gui.FilterSettings;
+import net.coderazzi.filters.gui.IFilterEditor;
+import net.coderazzi.filters.gui.IFilterHeaderObserver;
 import net.coderazzi.filters.gui.TableFilterHeader;
 import net.coderazzi.filters.gui.TableFilterHeader.Position;
-import net.coderazzi.filters.gui.editor.FilterEditor;
 
 
 @SuppressWarnings("serial")
 public class TableFilterExample extends JFrame {
 
-	private static final long serialVersionUID = 4521016104474569405L;
+    private static final String USE_TABLE_RENDERER = "use table renderer";
+    private static final String RECOVER_COLUMN = "Recover column ";
+    private static final String MAX_HISTORY_LENGTH = "max history length";
+    private static final String IGNORE_CASE = "ignore case";
+    private static final String ENABLED = "enabled";
+    private static final String EDITABLE = "editable";
+    private static final String AUTO_CHOICES = "auto choices";
 
     TestTableModel tableModel;
     JTable table;
-    JPanel tablePanel;    
+    JPanel tablePanel;
     JPanel filterHeaderPanel;
     TableFilterHeader filterHeader;
-    TableSorter tableSorter; //Java 5 change
-    
-    
+    TableSorter tableSorter; // Java 5 change
+    JMenu filtersMenu;
+    JCheckBoxMenuItem allEnabled;
+    JCheckBoxMenuItem countrySpecialSorter;
+    JCheckBoxMenuItem enableUserFilter;
+    IFilter userFilter;
+
     public TableFilterExample() {
         super("Table Filter Example / Java 5");
         getContentPane().add(createGui());
         setJMenuBar(createMenu());
+        filterHeader.setTable(table);
         customizeTable();
     }
-    
-    private JPanel createGui(){
-    	tableModel = TestTableModel.createTestTableModel();
+
+    private JPanel createGui() {
+        tableModel = TestTableModel.createTestTableModel();
         // >>special difference with Java 6
         // instead of table = new JTable(tableModel);
         table = new JTable();
         tableSorter = new TableSorter(tableModel, table.getTableHeader());
         table.setModel(tableSorter);
         table.getSelectionModel().addListSelectionListener(
-        		new ListSelectionListener() {
+            new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent e) {
-                    // added the listener to show 
-                	//how to make model's coordinates translations
+                    // added the listener to show
+                    // how to make model's coordinates translations
                     if (!e.getValueIsAdjusting()) {
                         int selected = table.getSelectedRow();
                         if (selected != -1) {
-                            int model = ((TableModelFilter) table.getModel()).
-                            	convertRowIndexToModel(selected);
+                            int model = ((TableModelFilter) table.getModel())
+                                        .convertRowIndexToModel(selected);
                             JOptionPane.showMessageDialog(
-                            	TableFilterExample.this,
-                            	"Selected: " + tableModel.getRow(
-                            			tableSorter.modelIndex(model)).name);
+                                TableFilterExample.this,
+                                "Selected: "
+                                + tableModel.getRow(
+                                    tableSorter.modelIndex(model)).name);
                         }
                     }
                 }
             });
         // <<<
-    	tablePanel = new JPanel(new BorderLayout());
-    	tablePanel.add(new JScrollPane(table), BorderLayout.CENTER);
-    	tablePanel.setBorder(BorderFactory.createCompoundBorder(
-    			BorderFactory.createLoweredBevelBorder(),
-    			BorderFactory.createEmptyBorder(8, 8, 8, 8)));
-    	filterHeader = new TableFilterHeader(table){
-    		
-    		@Override
-    		protected void customizeEditor(FilterEditor editor) {
-    			super.customizeEditor(editor);
-    			//enter here any code to customize the editor
-    		}
-    	};
-    	return tablePanel;
-    }
-    
-    private JMenuBar createMenu(){
-    	JMenuBar menu = new JMenuBar();
-    	menu.add(createTableMenu());
-    	menu.add(createHeaderMenu());
-    	menu.add(createMiscellaneousMenu());
-    	return menu;
-    }
-    
-    private JMenu createTableMenu(){
-    	JCheckBoxMenuItem autoResize = 
-    		new JCheckBoxMenuItem(new AbstractAction("Auto resize") {
-			public void actionPerformed(ActionEvent e) {
-				JCheckBoxMenuItem source =(JCheckBoxMenuItem) e.getSource();
-				table.setAutoResizeMode(source.isSelected()? 
-						JTable.AUTO_RESIZE_ALL_COLUMNS : JTable.AUTO_RESIZE_OFF);
-				table.doLayout();
-			}
-		});
-		autoResize.setSelected(table.getAutoResizeMode()!=JTable.AUTO_RESIZE_OFF);
-    	final AbstractAction removeElement = 
-    		new AbstractAction("Remove top row") {
-			
-			public void actionPerformed(ActionEvent e) {
-				tableModel.removeTestData();
-				if (tableModel.getRowCount()==0){
-					((JComponent)e.getSource()).setEnabled(false);
-				}
-			}
-		};
-				
-    	JMenu tableMenu = new JMenu("Table");
-    	tableMenu.setMnemonic(KeyEvent.VK_T);
-    	
-    	tableMenu.add(new JMenuItem(
-    			new AbstractAction("Create male row [first position]") {			
-			public void actionPerformed(ActionEvent e) {
-				addTestData(true);
-		        removeElement.setEnabled(true);
-			}
-		}));
-    	tableMenu.add(new JMenuItem(
-    			new AbstractAction("Create female row [first position]") {			
-			public void actionPerformed(ActionEvent e) {
-				addTestData(false);
-		        removeElement.setEnabled(true);
-			}
-		}));
-    	
-		tableMenu.add(new JMenuItem(removeElement));
-		tableMenu.addSeparator();
-		tableMenu.add(autoResize);
-		tableMenu.addSeparator();
-		tableMenu.add(new JMenuItem(new AbstractAction("Change model") {			
-			public void actionPerformed(ActionEvent e) {
-				tableModel.changeModel(table);
-                customizeTable();
-                removeElement.setEnabled(true);
-			}
-		}));
-		tableMenu.add(new JMenuItem(new AbstractAction("Use new model") {			
-			public void actionPerformed(ActionEvent e) {
-            	tableModel = TestTableModel.createTestTableModel();
-                // >>special difference with Java 6
-                // instead of table.setModel(tableModel);
-                tableSorter.setTableModel(tableModel);
-                customizeTable();
-                removeElement.setEnabled(true);
-			}
-		}));
-    	return tableMenu;
+        tablePanel = new JPanel(new BorderLayout());
+        tablePanel.add(new JScrollPane(table), BorderLayout.CENTER);
+        tablePanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLoweredBevelBorder(),
+                BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+        filterHeader = new TableFilterHeader();
+        filterHeader.addHeaderObserver(new IFilterHeaderObserver() {
+
+                public void tableFilterUpdated(TableFilterHeader header,
+                                               IFilterEditor     editor,
+                                               TableColumn       tableColumn) {
+                    // no need to react
+                }
+
+                public void tableFilterEditorExcluded(
+                        TableFilterHeader header,
+                        IFilterEditor     editor,
+                        TableColumn       tableColumn) {
+                    getMenu(filtersMenu, (String) tableColumn.getHeaderValue(),
+                        true);
+                }
+
+                public void tableFilterEditorCreated(
+                        TableFilterHeader header,
+                        IFilterEditor     editor,
+                        TableColumn       tableColumn) {
+                    addColumnToFiltersMenu(editor,
+                        (String) tableColumn.getHeaderValue());
+                }
+            });
+        countrySpecialSorter = new JCheckBoxMenuItem(
+                "country column sorted by red proportion", false);
+        countrySpecialSorter.addItemListener(new ItemListener() {
+
+                public void itemStateChanged(ItemEvent e) {
+                    setCountryComparator(countrySpecialSorter.isSelected());
+                }
+            });
+
+        return tablePanel;
     }
 
-    private JMenu createHeaderMenu(){    	
-    	JCheckBoxMenuItem ignoreCase=new JCheckBoxMenuItem(
-    			new AbstractAction("ignore case") {			
-			public void actionPerformed(ActionEvent e) {
-				JCheckBoxMenuItem source =(JCheckBoxMenuItem) e.getSource();
-				filterHeader.getTextParser().setIgnoreCase(source.isSelected());				
-			}
-		});
-    	
-    	JCheckBoxMenuItem autoOptions=new JCheckBoxMenuItem(
-    			new AbstractAction("auto options") {			
-			public void actionPerformed(ActionEvent e) {
-				JCheckBoxMenuItem source =(JCheckBoxMenuItem) e.getSource();
-				filterHeader.setAutoOptions(source.isSelected());				
-			}
-		});
-    	
-    	JCheckBoxMenuItem enabled=new JCheckBoxMenuItem(
-    			new AbstractAction("enabled") {			
-			public void actionPerformed(ActionEvent e) {
-				JCheckBoxMenuItem source =(JCheckBoxMenuItem) e.getSource();
-				filterHeader.setEnabled(source.isSelected());				
-			}
-		});
-    	
-    	JCheckBoxMenuItem visible=new JCheckBoxMenuItem(
-    			new AbstractAction("visible") {			
-			public void actionPerformed(ActionEvent e) {
-				JCheckBoxMenuItem source =(JCheckBoxMenuItem) e.getSource();
-				filterHeader.setVisible(source.isSelected());				
-			}
-		});
-    	
-    	JMenuItem reset = new JMenuItem(new AbstractAction("reset") {			
-			public void actionPerformed(ActionEvent e) {
-				filterHeader.resetFilter();
-			}
-		});
-    	ignoreCase.setMnemonic(KeyEvent.VK_C);
-    	ignoreCase.setSelected(filterHeader.getTextParser().isIgnoreCase());
-    	autoOptions.setSelected(filterHeader.isAutoOptions());
-    	enabled.setSelected(filterHeader.isEnabled());
-    	visible.setSelected(filterHeader.isVisible());
+    private JMenuBar createMenu() {
+        JMenuBar menu = new JMenuBar();
+        menu.add(createTableMenu());
+        menu.add(createHeaderMenu());
+        menu.add(createFiltersMenu());
+        menu.add(createMiscellaneousMenu());
 
-    	JMenu ret = new JMenu("Filter Header");
-    	ret.setMnemonic(KeyEvent.VK_H);
-    	ret.add(ignoreCase);
-    	ret.add(autoOptions);
-    	ret.add(enabled);
-    	ret.addSeparator();
-    	ret.add(visible);
-    	ret.add(createPositionMenu());
-    	ret.add(createAppearanceMenu());
-    	ret.addSeparator();
-    	ret.add(createMaxRowsMenu());
-    	ret.add(createMaxHistoryMenu());
-    	ret.addSeparator();
-    	ret.add(reset);
-    	return ret;
+        return menu;
     }
-    
-    private JMenu createMiscellaneousMenu(){
-    	
-		final UserFilter userFilter = new UserFilter(filterHeader){
-			int nameColumn=tableModel.getColumn(TestTableModel.NAME);
-			@Override
-			public boolean include(Entry entry) {
-				return -1!=entry.getStringValue(nameColumn).indexOf('e');
-			}
-		};
-		
-		userFilter.setEnabled(false);
 
-		JCheckBoxMenuItem enableUserFilter=new JCheckBoxMenuItem(
-				new AbstractAction("enable user filter") {			
-			public void actionPerformed(ActionEvent e) {
-				JCheckBoxMenuItem source =(JCheckBoxMenuItem) e.getSource();
-				userFilter.setEnabled(source.isSelected());
-				if (source.isSelected()){
-					JOptionPane.showMessageDialog(TableFilterExample.this, 
-							"Filtering out any row where the name does not "+
-							"contain a lower case 'e'");
-				}
-			}
-		});
-    	
-    	JMenuItem events = new JMenuItem(new AbstractAction("events window") {
-    		EventsWindow window;
-			public void actionPerformed(ActionEvent e) {
-				if (window==null || !window.isVisible()){
-					window = new EventsWindow(TableFilterExample.this, 
-							filterHeader);
-					window.setVisible(true);
-				} else {
-					window.requestFocus();
-				}
-			}
-		});
+    private JMenu createFiltersMenu() {
 
-    	JMenu ret = new JMenu("Miscellaneous");
-    	ret.setMnemonic(KeyEvent.VK_M);
-    	ret.add(events);
-    	ret.addSeparator();
-    	ret.add(enableUserFilter);
-    	return ret;
-    }
-    
-    private JMenu createPositionMenu(){
-    	JRadioButtonMenuItem top = new JRadioButtonMenuItem(
-    			new AbstractAction("top (automatic)") {			
-			public void actionPerformed(ActionEvent e) {
-				setPosition(Position.TOP);
-			}
-		});
-    	JRadioButtonMenuItem inline = new JRadioButtonMenuItem(
-    			new AbstractAction("inline (automatic)") {			
-			public void actionPerformed(ActionEvent e) {
-				setPosition(Position.INLINE);
-			}
-		});
-    	JRadioButtonMenuItem manual = new JRadioButtonMenuItem(
-    			new AbstractAction("bottom (manual)") {			
-			public void actionPerformed(ActionEvent e) {
-				setPosition(Position.NONE);
-			}
-		});
-    	ButtonGroup group = new ButtonGroup();
-    	group.add(top);
-    	group.add(inline);
-    	group.add(manual);
-    	switch(filterHeader.getPosition()){
-    		case TOP: 
-    			top.setSelected(true);
-    			break;
-    		case INLINE: 
-    			inline.setSelected(true);
-    			break;
-    		case NONE: 
-    			manual.setSelected(true);
-    			break;
-    	}
-    	setPosition(filterHeader.getPosition());
-    	JMenu ret = new JMenu("position");
-    	ret.add(top);
-    	ret.add(inline);
-    	ret.add(manual);
-    	return ret;
-    }
-    	
-    private JMenu createAppearanceMenu(){
-    	JMenu ret = new JMenu("appearance");
-    	ret.add(new JMenuItem(new AbstractAction("background color ...") {			
-			public void actionPerformed(ActionEvent e) {
-				Color ret = JColorChooser.showDialog(TableFilterExample.this, 
-						"Select header's background color", 
-						filterHeader.getBackground());
-				if (ret!=null){
-					filterHeader.setBackground(ret);
-				}
-			}
-		}));
-    	ret.add(new JMenuItem(new AbstractAction("foreground color ...") {			
-			public void actionPerformed(ActionEvent e) {
-				Color ret = JColorChooser.showDialog(TableFilterExample.this, 
-						"Select header's foreground color", 
-						filterHeader.getForeground());
-				if (ret!=null){
-					filterHeader.setForeground(ret);
-				}
-			}
-		}));
-    	ret.add(new JMenuItem(new AbstractAction("disabled color ...") {			
-			public void actionPerformed(ActionEvent e) {
-				Color ret = JColorChooser.showDialog(TableFilterExample.this, 
-						"Select header's disabled color", 
-						filterHeader.getDisabledForeground());
-				if (ret!=null){
-					filterHeader.setDisabledForeground(ret);
-				}
-			}
-		}));
-    	ret.add(new JMenuItem(new AbstractAction("error color ...") {			
-			public void actionPerformed(ActionEvent e) {
-				Color ret = JColorChooser.showDialog(TableFilterExample.this, 
-						"Select header's error color", 
-						filterHeader.getErrorForeground());
-				if (ret!=null){
-					filterHeader.setErrorForeground(ret);
-				}
-			}
-		}));
-    	ret.addSeparator();
-    	ret.add(createFontSizeMenu());			
-    	return ret;
-    }
-    
-    private JMenu createFontSizeMenu(){
-    	int RELATIVE_FONT_SIZES[]={-2, -1, 0, 1, 2, 4, 8, 16};
-    	int size=filterHeader.getFont().getSize();
-    	JMenu ret = new JMenu("font size");
-    	ButtonGroup group = new ButtonGroup();
-    	for (int i : RELATIVE_FONT_SIZES){
-    		JRadioButtonMenuItem item = createFontSizeMenuItem(size+i);
-    		ret.add(item);
-    		group.add(item);
-    		if (i==0){
-    			item.setSelected(true);
-    		}
-    	}
-    	return ret;
-    }
-    
-    private JRadioButtonMenuItem createFontSizeMenuItem(final int size){
-    	return new JRadioButtonMenuItem(new AbstractAction(String.valueOf(size)) {			
-			public void actionPerformed(ActionEvent e) {
-				filterHeader.setFont(
-						filterHeader.getFont().deriveFont((float)(size)));
-			}
-		});
-    }
-    
-    private JMenu createMaxRowsMenu (){
-    	JMenu ret = new JMenu("max visible rows on popup");
-    	ButtonGroup group = new ButtonGroup();
-    	for (int i=4; i<16;i++){
-    		JRadioButtonMenuItem item = createMaxRowsMenuItem(i);
-    		if (i==filterHeader.getMaxVisibleRows()){
-    			item.setSelected(true);
-    		}
-    		group.add(item);
-    		ret.add(item);
-    	}
-    	return ret;
-    }
-    
-    private JRadioButtonMenuItem createMaxRowsMenuItem(final int i){
-    	return new JRadioButtonMenuItem(new AbstractAction(String.valueOf(i)) {			
-			public void actionPerformed(ActionEvent e) {
-				filterHeader.setMaxVisibleRows(i);
-			}
-		});
-    }
-    
-    private JMenu createMaxHistoryMenu (){
-    	JMenu ret = new JMenu("max history on country column");
+        userFilter = new Filter() {
+            int nameColumn = tableModel.getColumn(TestTableModel.NAME);
 
-    	for (int i=0; i<10;i++){
-    		ret.add(createMaxHistoryMenuItem(i));
-    	}
-    	return ret;
-    }
-    
-    private JMenuItem createMaxHistoryMenuItem(final int i){
-    	return new JMenuItem(new AbstractAction(String.valueOf(i)) {			
-			public void actionPerformed(ActionEvent e) {
-				filterHeader.getFilterEditor(tableModel.getColumn(
-						TestTableModel.COUNTRY)).setMaxHistory(i);
-			}
-		});
-    }
-    
-    void customizeTable() {
-        int countryColumn = tableModel.getColumn(TestTableModel.COUNTRY);
+            @Override public boolean include(Entry entry) {
+                return -1 != entry.getStringValue(nameColumn).indexOf('e');
+            }
+        };
 
-        if (tableModel.getColumnCount() > countryColumn) {
-            table.getColumnModel().getColumn(
-            		table.convertColumnIndexToView(countryColumn)).
-            		setCellRenderer(new FlagRenderer());
+        JCheckBoxMenuItem includeUserFilter = new JCheckBoxMenuItem(
+                new AbstractAction("include in header") {
+                    public void actionPerformed(ActionEvent e) {
+                        JCheckBoxMenuItem source = (JCheckBoxMenuItem)
+                            e.getSource();
+                        if (source.isSelected()) {
+                            filterHeader.addFilter(userFilter);
+                        } else {
+                            filterHeader.removeFilter(userFilter);
+                        }
 
-        	filterHeader.getFilterEditor(countryColumn).setAutoOptions(tableModel);
-        	filterHeader.setTableCellRenderer(countryColumn, new FlagRenderer());
+                        enableUserFilter.setSelected(userFilter.isEnabled());
+                    }
+                });
+
+        enableUserFilter = new JCheckBoxMenuItem(new AbstractAction("enable") {
+                    public void actionPerformed(ActionEvent e) {
+                        JCheckBoxMenuItem source = (JCheckBoxMenuItem)
+                            e.getSource();
+                        userFilter.setEnabled(source.isSelected());
+                    }
+                });
+        enableUserFilter.setSelected(userFilter.isEnabled());
+
+        JMenu menu = new JMenu("User filter (name without 'e')");
+        menu.add(includeUserFilter);
+        menu.add(enableUserFilter);
+        filtersMenu = new JMenu("Filters");
+        filtersMenu.setMnemonic(KeyEvent.VK_F);
+        filtersMenu.add(menu);
+        filtersMenu.addSeparator();
+
+        return filtersMenu;
+
+    }
+
+    void reinitFiltersMenu() {
+        int pos = filtersMenu.getItemCount();
+        while (pos-- > 2) {
+            filtersMenu.remove(filtersMenu.getItem(pos));
+        }
+    }
+
+    private JMenu createTableMenu() {
+        JCheckBoxMenuItem autoResize = new JCheckBoxMenuItem(new AbstractAction(
+                    "Auto resize") {
+                    public void actionPerformed(ActionEvent e) {
+                        JCheckBoxMenuItem source = (JCheckBoxMenuItem)
+                            e.getSource();
+                        table.setAutoResizeMode(
+                            source.isSelected() ? JTable.AUTO_RESIZE_ALL_COLUMNS
+                                                : JTable.AUTO_RESIZE_OFF);
+                        table.doLayout();
+                    }
+                });
+        autoResize.setSelected(table.getAutoResizeMode()
+                != JTable.AUTO_RESIZE_OFF);
+
+        final AbstractAction removeElement = new AbstractAction(
+                "Remove top row") {
+
+            public void actionPerformed(ActionEvent e) {
+                tableModel.removeTestData();
+                if (tableModel.getRowCount() == 0) {
+                    ((JComponent) e.getSource()).setEnabled(false);
+                }
+            }
+        };
+
+        JMenu tableMenu = new JMenu("Table");
+        tableMenu.setMnemonic(KeyEvent.VK_T);
+
+        tableMenu.add(new JMenuItem(
+                new AbstractAction("Create male row [first position]") {
+                    public void actionPerformed(ActionEvent e) {
+                        addTestData(true);
+                        removeElement.setEnabled(true);
+                    }
+                }));
+        tableMenu.add(new JMenuItem(
+                new AbstractAction("Create female row [first position]") {
+                    public void actionPerformed(ActionEvent e) {
+                        addTestData(false);
+                        removeElement.setEnabled(true);
+                    }
+                }));
+
+        tableMenu.add(new JMenuItem(removeElement));
+        tableMenu.addSeparator();
+        tableMenu.add(autoResize);
+        tableMenu.addSeparator();
+        tableMenu.add(new JMenuItem(
+                new AbstractAction("Change model width") {
+                    public void actionPerformed(ActionEvent e) {
+                        reinitFiltersMenu();
+                        tableModel.changeModel(table);
+                        customizeTable();
+                        removeElement.setEnabled(true);
+                    }
+                }));
+        tableMenu.add(new JMenuItem(new AbstractAction("Use new model") {
+                    public void actionPerformed(ActionEvent e) {
+                        tableModel = TestTableModel.createTestTableModel();
+                        // >>special difference with Java 6
+                        // instead of table.setModel(tableModel);
+                        reinitFiltersMenu();
+                        tableSorter.setTableModel(tableModel);
+                        customizeTable();
+                        removeElement.setEnabled(true);
+                    }
+                }));
+
+        return tableMenu;
+    }
+
+    private JMenu createHeaderMenu() {
+        JCheckBoxMenuItem onUse = new JCheckBoxMenuItem(new AbstractAction(
+                    "on use") {
+                    public void actionPerformed(ActionEvent e) {
+                        JCheckBoxMenuItem source = (JCheckBoxMenuItem)
+                            e.getSource();
+                        if (source.isSelected()) {
+                            filterHeader.setTable(table);
+                            customizeTable();
+                        } else {
+                            filterHeader.setTable(null);
+                        }
+                    }
+                });
+
+        JCheckBoxMenuItem ignoreCase = new JCheckBoxMenuItem(new AbstractAction(
+                    IGNORE_CASE) {
+                    public void actionPerformed(ActionEvent e) {
+                        JCheckBoxMenuItem source = (JCheckBoxMenuItem)
+                            e.getSource();
+                        filterHeader.getParserModel().setIgnoreCase(
+                            source.isSelected());
+                        updateFiltersInfo();
+                    }
+                });
+
+        allEnabled = new JCheckBoxMenuItem(new AbstractAction(ENABLED) {
+                    public void actionPerformed(ActionEvent e) {
+                        JCheckBoxMenuItem source = (JCheckBoxMenuItem)
+                            e.getSource();
+                        filterHeader.setEnabled(source.isSelected());
+                        updateFiltersInfo();
+                    }
+                });
+
+        JCheckBoxMenuItem visible = new JCheckBoxMenuItem(new AbstractAction(
+                    "visible") {
+                    public void actionPerformed(ActionEvent e) {
+                        JCheckBoxMenuItem source = (JCheckBoxMenuItem)
+                            e.getSource();
+                        filterHeader.setVisible(source.isSelected());
+                    }
+                });
+
+        JMenuItem reset = new JMenuItem(new AbstractAction("reset") {
+                    public void actionPerformed(ActionEvent e) {
+                        filterHeader.resetFilter();
+                        updateFiltersInfo();
+                    }
+                });
+        onUse.setSelected(true);
+        ignoreCase.setMnemonic(KeyEvent.VK_C);
+        ignoreCase.setSelected(filterHeader.getParserModel().isIgnoreCase());
+        allEnabled.setSelected(filterHeader.isEnabled());
+        visible.setSelected(filterHeader.isVisible());
+
+        JMenu ret = new JMenu("Filter Header");
+        ret.setMnemonic(KeyEvent.VK_H);
+        ret.add(onUse);
+        ret.addSeparator();
+        ret.add(ignoreCase);
+        ret.add(createAutoChoicesMenu(filterHeader.getAutoChoices(),
+                new AutoChoicesSet() {
+                    public void setAutoChoices(AutoChoices ao) {
+                        filterHeader.setAutoChoices(ao);
+                        updateFiltersInfo();
+                    }
+                }));
+        ret.add(allEnabled);
+        ret.addSeparator();
+        ret.add(visible);
+        ret.add(createPositionMenu());
+        ret.add(createAppearanceMenu());
+        ret.add(createMaxRowsMenu());
+        ret.add(createMaxHistoryMenu(null));
+        ret.addSeparator();
+        ret.add(reset);
+
+        return ret;
+    }
+
+    private JMenu createAutoChoicesMenu(AutoChoices          preselected,
+                                        final AutoChoicesSet iface) {
+        JMenu ret = new JMenu(AUTO_CHOICES);
+        ButtonGroup group = new ButtonGroup();
+        for (AutoChoices ao : AutoChoices.values()) {
+            final AutoChoices set = ao;
+            JRadioButtonMenuItem item = new JRadioButtonMenuItem(
+                    new AbstractAction(ao.toString().toLowerCase()) {
+                        public void actionPerformed(ActionEvent e) {
+                            iface.setAutoChoices(set);
+                        }
+                    });
+            group.add(item);
+            if (preselected == ao) {
+                item.setSelected(true);
+            }
+
+            ret.add(item);
         }
 
+        return ret;
+    }
+
+    private JMenu createlLookAndFeelMenu() {
+        JMenu ret = new JMenu("Look And Feel");
+        ButtonGroup group = new ButtonGroup();
+        LookAndFeel now = UIManager.getLookAndFeel();
+        for (LookAndFeelInfo lfi : UIManager.getInstalledLookAndFeels()) {
+            final String classname = lfi.getClassName();
+            JRadioButtonMenuItem item = new JRadioButtonMenuItem(
+                    new AbstractAction(lfi.getName()) {
+                        public void actionPerformed(ActionEvent e) {
+                            try {
+                                UIManager.setLookAndFeel(classname);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                System.exit(0);
+                            }
+
+                            SwingUtilities.updateComponentTreeUI(
+                                TableFilterExample.this);
+                            TableFilterExample.this.pack();
+                        }
+                    });
+            group.add(item);
+            ret.add(item);
+            if (lfi.getName().equals(now.getName())) {
+                item.setSelected(true);
+            }
+        }
+
+        if (group.getButtonCount() < 2) {
+            ret.setEnabled(false);
+        }
+
+        return ret;
+    }
+
+    private JMenu createMiscellaneousMenu() {
+
+        JMenuItem events = new JMenuItem(new AbstractAction("events window") {
+                    EventsWindow window;
+
+                    public void actionPerformed(ActionEvent e) {
+                        if ((window == null) || !window.isVisible()) {
+                            window = new EventsWindow(TableFilterExample.this,
+                                    filterHeader);
+                            window.setVisible(true);
+                        } else {
+                            window.requestFocus();
+                        }
+                    }
+                });
+
+        JMenu ret = new JMenu("Miscellaneous");
+        ret.setMnemonic(KeyEvent.VK_M);
+        ret.add(events);
+        ret.addSeparator();
+        ret.add(createlLookAndFeelMenu());
+
+        return ret;
+    }
+
+    private JMenu createPositionMenu() {
+        JRadioButtonMenuItem top = new JRadioButtonMenuItem(new AbstractAction(
+                    "top (automatic)") {
+                    public void actionPerformed(ActionEvent e) {
+                        setPosition(Position.TOP);
+                    }
+                });
+        JRadioButtonMenuItem inline = new JRadioButtonMenuItem(
+                new AbstractAction("inline (automatic)") {
+                    public void actionPerformed(ActionEvent e) {
+                        setPosition(Position.INLINE);
+                    }
+                });
+        JRadioButtonMenuItem manual = new JRadioButtonMenuItem(
+                new AbstractAction("bottom (manual)") {
+                    public void actionPerformed(ActionEvent e) {
+                        setPosition(Position.NONE);
+                    }
+                });
+        ButtonGroup group = new ButtonGroup();
+        group.add(top);
+        group.add(inline);
+        group.add(manual);
+        switch (filterHeader.getPosition()) {
+
+        case TOP:
+            top.setSelected(true);
+
+            break;
+
+        case INLINE:
+            inline.setSelected(true);
+
+            break;
+
+        case NONE:
+            manual.setSelected(true);
+
+            break;
+        }
+
+        setPosition(filterHeader.getPosition());
+
+        JMenu ret = new JMenu("position");
+        ret.add(top);
+        ret.add(inline);
+        ret.add(manual);
+
+        return ret;
+    }
+
+    private JMenu createAppearanceMenu() {
+        JMenu ret = new JMenu("appearance");
+        ret.add(new JMenuItem(new AbstractAction("background color ...") {
+                    public void actionPerformed(ActionEvent e) {
+                        Color ret = JColorChooser.showDialog(
+                                TableFilterExample.this,
+                                "Select background color",
+                                filterHeader.getBackground());
+                        if (ret != null) {
+                            filterHeader.setBackground(ret);
+                        }
+                    }
+                }));
+        ret.add(new JMenuItem(new AbstractAction("foreground color ...") {
+                    public void actionPerformed(ActionEvent e) {
+                        Color ret = JColorChooser.showDialog(
+                                TableFilterExample.this,
+                                "Select foreground color",
+                                filterHeader.getForeground());
+                        if (ret != null) {
+                            filterHeader.setForeground(ret);
+                        }
+                    }
+                }));
+        ret.add(new JMenuItem(new AbstractAction("disabled color ...") {
+                    public void actionPerformed(ActionEvent e) {
+                        Color ret = JColorChooser.showDialog(
+                                TableFilterExample.this,
+                                "Select disabled color",
+                                filterHeader.getDisabledForeground());
+                        if (ret != null) {
+                            filterHeader.setDisabledForeground(ret);
+                        }
+                    }
+                }));
+        ret.add(new JMenuItem(new AbstractAction("disabled background ...") {
+                    public void actionPerformed(ActionEvent e) {
+                        Color ret = JColorChooser.showDialog(
+                                TableFilterExample.this,
+                                "Select disabled backgrouns color",
+                                filterHeader.getDisabledBackground());
+                        if (ret != null) {
+                            filterHeader.setDisabledBackground(ret);
+                        }
+                    }
+                }));
+        ret.add(new JMenuItem(new AbstractAction("grid color ...") {
+                    public void actionPerformed(ActionEvent e) {
+                        Color ret = JColorChooser.showDialog(
+                                TableFilterExample.this, "Select grid color",
+                                filterHeader.getGridColor());
+                        if (ret != null) {
+                            filterHeader.setGridColor(ret);
+                        }
+                    }
+                }));
+        ret.add(new JMenuItem(new AbstractAction("error color ...") {
+                    public void actionPerformed(ActionEvent e) {
+                        Color ret = JColorChooser.showDialog(
+                                TableFilterExample.this, "Select error color",
+                                filterHeader.getErrorForeground());
+                        if (ret != null) {
+                            filterHeader.setErrorForeground(ret);
+                        }
+                    }
+                }));
+        ret.add(new JMenuItem(
+                new AbstractAction("selection foreground ...") {
+                    public void actionPerformed(ActionEvent e) {
+                        Color ret = JColorChooser.showDialog(
+                                TableFilterExample.this,
+                                "Select selection foreground",
+                                filterHeader.getSelectionForeground());
+                        if (ret != null) {
+                            filterHeader.setSelectionForeground(ret);
+                        }
+                    }
+                }));
+        ret.add(new JMenuItem(
+                new AbstractAction("selection background ...") {
+                    public void actionPerformed(ActionEvent e) {
+                        Color ret = JColorChooser.showDialog(
+                                TableFilterExample.this,
+                                "Select selection background",
+                                filterHeader.getSelectionBackground());
+                        if (ret != null) {
+                            filterHeader.setSelectionBackground(ret);
+                        }
+                    }
+                }));
+        ret.add(new JMenuItem(
+                new AbstractAction("text selection color ...") {
+                    public void actionPerformed(ActionEvent e) {
+                        Color ret = JColorChooser.showDialog(
+                                TableFilterExample.this,
+                                "Select text selection color",
+                                filterHeader.getTextSelectionColor());
+                        if (ret != null) {
+                            filterHeader.setTextSelectionColor(ret);
+                        }
+                    }
+                }));
+        ret.addSeparator();
+        ret.add(createFontSizeMenu());
+
+        return ret;
+    }
+
+    void addColumnToFiltersMenu(final IFilterEditor editor, final String name) {
+        JMenu menu = (JMenu) getMenu(filtersMenu, name, false);
+        menu.add(createAutoChoicesMenu(editor.getAutoChoices(),
+                new AutoChoicesSet() {
+                    public void setAutoChoices(AutoChoices ao) {
+                        editor.setAutoChoices(ao);
+                        updateFilter(editor, name);
+                    }
+                }));
+
+        JCheckBoxMenuItem editable = new JCheckBoxMenuItem(EDITABLE,
+                editor.isEditable());
+        editable.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JCheckBoxMenuItem source = (JCheckBoxMenuItem)
+                        e.getSource();
+                    editor.setEditable(source.isSelected());
+                }
+            });
+        menu.add(editable);
+
+        JCheckBoxMenuItem enabled = new JCheckBoxMenuItem(ENABLED,
+                editor.getFilter().isEnabled());
+        enabled.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JCheckBoxMenuItem source = (JCheckBoxMenuItem)
+                        e.getSource();
+                    editor.getFilter().setEnabled(source.isSelected());
+                    allEnabled.setSelected(filterHeader.isEnabled());
+                }
+            });
+        menu.add(enabled);
+
+        JCheckBoxMenuItem ignoreCase = new JCheckBoxMenuItem(IGNORE_CASE,
+                editor.isIgnoreCase());
+        ignoreCase.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JCheckBoxMenuItem source = (JCheckBoxMenuItem)
+                        e.getSource();
+                    boolean ignoreCase = source.isSelected();
+                    editor.setIgnoreCase(ignoreCase);
+                }
+            });
+        menu.add(ignoreCase);
+        menu.addSeparator();
+
+        if (name.equalsIgnoreCase("country")) {
+            JCheckBoxMenuItem useFlagRenderer = new JCheckBoxMenuItem(
+                    USE_TABLE_RENDERER, true);
+            useFlagRenderer.addItemListener(new ItemListener() {
+
+                    public void itemStateChanged(ItemEvent e) {
+                        if (((JCheckBoxMenuItem) e.getSource()).isSelected()) {
+                            editor.setRenderer(new FlagRenderer());
+                        } else {
+                            editor.setRenderer(null);
+                        }
+                    }
+                });
+
+            menu.add(useFlagRenderer);
+        }
+
+        menu.add(createMaxHistoryMenu(editor));
+        menu.addSeparator();
+        if (name.equalsIgnoreCase("country")) {
+            menu.add(countrySpecialSorter);
+            menu.addSeparator();
+        }
+
+        menu.add(new JMenuItem(new AbstractAction("Remove this column") {
+                    public void actionPerformed(ActionEvent e) {
+                        TableColumnModel model = table.getColumnModel();
+                        TableColumn tc = model.getColumn(
+                                model.getColumnIndex(name));
+                        model.removeColumn(tc);
+                        createFilterColumnRecovery(tc);
+                    }
+                }));
+    }
+
+    void createFilterColumnRecovery(final TableColumn tc) {
+        final String title = RECOVER_COLUMN + (String) tc.getHeaderValue();
+        JMenuItem item = new JMenuItem(new AbstractAction(title) {
+                    public void actionPerformed(ActionEvent e) {
+                        table.getColumnModel().addColumn(tc);
+                        getMenu(filtersMenu, title, true);
+                        if (TestTableModel.AGE.equals(tc.getHeaderValue())) {
+                            customizeAgeColumn();
+                        } else if (TestTableModel.COUNTRY.equals(
+                                    tc.getHeaderValue())) {
+                            customizeCountryColumn();
+                        } else if (TestTableModel.DATE.equals(
+                                    tc.getHeaderValue())) {
+                            customizeDateColumn();
+                        }
+                    }
+                });
+        filtersMenu.add(item);
+    }
+
+    void updateFiltersInfo() {
+        TableColumnModel model = table.getColumnModel();
+        int n = model.getColumnCount();
+        while (n-- > 0) {
+            TableColumn tc = model.getColumn(n);
+            updateFilter(filterHeader.getFilterEditor(tc.getModelIndex()),
+                (String) tc.getHeaderValue());
+        }
+
+        enableUserFilter.setSelected(userFilter.isEnabled());
+    }
+
+    void updateFilter(IFilterEditor editor, String columnName) {
+        JMenu menu = (JMenu) getMenu(filtersMenu, columnName, false);
+        ((JCheckBoxMenuItem) getMenu(menu, EDITABLE, false)).setSelected(
+            editor.isEditable());
+        ((JCheckBoxMenuItem) getMenu(menu, ENABLED, false)).setSelected(
+            editor.getFilter().isEnabled());
+        ((JCheckBoxMenuItem) getMenu(menu, IGNORE_CASE, false)).setSelected(
+            editor.isIgnoreCase());
+
+        JMenu autoChoicesMenu = (JMenu) getMenu(menu, AUTO_CHOICES, false);
+        ((JRadioButtonMenuItem) getMenu(autoChoicesMenu,
+                editor.getAutoChoices().toString().toLowerCase(), false))
+            .setSelected(true);
+
+        JMenu historyMenu = (JMenu) getMenu(menu, MAX_HISTORY_LENGTH, false);
+        JRadioButtonMenuItem item = ((JRadioButtonMenuItem) getMenu(historyMenu,
+                    String.valueOf(editor.getMaxHistory()), false));
+        if (item != null) {
+            item.setSelected(true);
+        }
+    }
+
+    JMenuItem getMenu(JMenu menu, String name, boolean remove) {
+        int pos = menu.getItemCount();
+        while (pos-- > 0) {
+            JMenuItem item = menu.getItem(pos);
+            if ((item != null) && item.getText().equals(name)) {
+                if (remove) {
+                    menu.remove(pos);
+                }
+
+                return item;
+            }
+        }
+
+        if (remove) {
+            return null;
+        }
+
+        JMenu ret = new JMenu(name);
+        menu.add(ret);
+
+        return ret;
+    }
+
+    private JMenu createFontSizeMenu() {
+        int RELATIVE_FONT_SIZES[] = { -2, -1, 0, 1, 2, 4, 8, 16 };
+        int size = filterHeader.getFont().getSize();
+        JMenu ret = new JMenu("font size");
+        ButtonGroup group = new ButtonGroup();
+        for (int i : RELATIVE_FONT_SIZES) {
+            JRadioButtonMenuItem item = createFontSizeMenuItem(size + i);
+            ret.add(item);
+            group.add(item);
+            if (i == 0) {
+                item.setSelected(true);
+            }
+        }
+
+        return ret;
+    }
+
+    private JRadioButtonMenuItem createFontSizeMenuItem(final int size) {
+        return new JRadioButtonMenuItem(new AbstractAction(
+                    String.valueOf(size)) {
+                    public void actionPerformed(ActionEvent e) {
+                        filterHeader.setFont(
+                            filterHeader.getFont().deriveFont((float) (size)));
+                    }
+                });
+    }
+
+    private JMenu createMaxRowsMenu() {
+        JMenu ret = new JMenu("max visible rows on popup");
+        ButtonGroup group = new ButtonGroup();
+        for (int i = 4; i < 16; i++) {
+            JRadioButtonMenuItem item = createMaxRowsMenuItem(i);
+            if (i == filterHeader.getMaxVisibleRows()) {
+                item.setSelected(true);
+            }
+
+            group.add(item);
+            ret.add(item);
+        }
+
+        return ret;
+    }
+
+    private JRadioButtonMenuItem createMaxRowsMenuItem(final int i) {
+        return new JRadioButtonMenuItem(new AbstractAction(String.valueOf(i)) {
+                    public void actionPerformed(ActionEvent e) {
+                        filterHeader.setMaxVisibleRows(i);
+                        updateFiltersInfo();
+                    }
+                });
+    }
+
+    private JMenu createMaxHistoryMenu(IFilterEditor editor) {
+        JMenu history = new JMenu(MAX_HISTORY_LENGTH);
+        ButtonGroup max = new ButtonGroup();
+
+        for (int i = 0; i < 10; i++) {
+            max.add(createMaxHistoryMenuItem(history, editor, i));
+        }
+
+        return history;
+    }
+
+    private JRadioButtonMenuItem createMaxHistoryMenuItem(
+            final JMenu         history,
+            final IFilterEditor editor,
+            final int           i) {
+        JRadioButtonMenuItem ret = new JRadioButtonMenuItem(new AbstractAction(
+                    String.valueOf(i)) {
+                    public void actionPerformed(ActionEvent e) {
+                        if (editor == null) {
+                            filterHeader.setMaxHistory(i);
+                            updateFiltersInfo();
+                        } else {
+                            editor.setMaxHistory(i);
+
+                            int set = editor.getMaxHistory();
+                            if (set != i) {
+                                JRadioButtonMenuItem mode =
+                                    (JRadioButtonMenuItem) getMenu(history,
+                                        String.valueOf(set), false);
+                                if (mode != null) {
+                                    mode.setSelected(true);
+                                }
+                            }
+                        }
+                    }
+                });
+        int current = (editor == null) ? filterHeader.getMaxHistory()
+                                       : editor.getMaxHistory();
+        if (current == i) {
+            ret.setSelected(true);
+        }
+
+        history.add(ret);
+
+        return ret;
+    }
+
+    private int getColumnView(String column) {
+        return table.convertColumnIndexToView(tableModel.getColumn(column));
+
+    }
+
+    void setCountryComparator(boolean set) {
+        if ((tableModel != null)
+                && (getColumnView(TestTableModel.COUNTRY) != -1)) {
+            int column = tableModel.getColumn(TestTableModel.COUNTRY);
+            Comparator<TestData.Flag> comp = set ? new TestData.RedComparator()
+                                                 : null;
+            filterHeader.getFilterEditor(column).setComparator(comp);
+        }
+    }
+
+    void customizeCountryColumn() {
+        int countryColumn = getColumnView(TestTableModel.COUNTRY);
+
+        if (countryColumn != -1) {
+            table.getColumnModel().getColumn(countryColumn).setCellRenderer(
+                new FlagRenderer());
+
+            int column = tableModel.getColumn(TestTableModel.COUNTRY);
+            boolean set = true;
+            JMenu menu = (JMenu) getMenu(filtersMenu, TestTableModel.COUNTRY,
+                    false);
+            if (menu != null) {
+                JCheckBoxMenuItem box = (JCheckBoxMenuItem) getMenu(menu,
+                        USE_TABLE_RENDERER, false);
+                if (box != null) {
+                    set = box.isSelected();
+                }
+            }
+
+            IFilterEditor editor = filterHeader.getFilterEditor(column);
+            if (set) {
+                editor.setRenderer(new FlagRenderer());
+            }
+
+            editor.setEditable(false);
+            updateFilter(editor, tableModel.getColumnName(column));
+            setCountryComparator(countrySpecialSorter.isSelected());
+        }
+    }
+
+    void customizeAgeColumn() {
         int agesColumn = tableModel.getColumn(TestTableModel.AGE);
+        int agesColumnView = getColumnView(TestTableModel.AGE);
 
-        if (tableModel.getColumnCount() > agesColumn) {
-            table.getColumnModel().getColumn(
-            		table.convertColumnIndexToView(agesColumn)).
-            		setCellRenderer(new CenteredRenderer());
+        if (agesColumnView != -1) {
+            table.getColumnModel().getColumn(agesColumnView).setCellRenderer(
+                new CenteredRenderer());
+            filterHeader.getFilterEditor(agesColumn).setCustomChoices(
+                AgeCustomChoice.getCustomChoices());
         }
+    }
 
-        int datesColumn = tableModel.getColumn(TestTableModel.DATE);
+    void customizeDateColumn() {
+        int datesColumnView = getColumnView(TestTableModel.DATE);
 
-        if (tableModel.getColumnCount() > datesColumn) {
-            table.getColumnModel().getColumn(
-            		table.convertColumnIndexToView(datesColumn)).
-            		setCellRenderer(new DefaultTableCellRenderer(){
+        if (datesColumnView != -1) {
+            Set<CustomChoice> choices = new HashSet<CustomChoice>();
+            choices.add(new Ages60sCustomChoice());
+            filterHeader.getFilterEditor(tableModel.getColumn(
+                    TestTableModel.DATE)).setCustomChoices(choices);
+            table.getColumnModel().getColumn(datesColumnView).setCellRenderer(
+                new DefaultTableCellRenderer() {
 
-            			private static final long serialVersionUID = 
-            				8042527267257156699L;
-            			Format parser = 
-            				FilterSettings.types.getFormat(Date.class);
+                    private static final long serialVersionUID =
+                        8042527267257156699L;
+                    Format parser = filterHeader.getParserModel().getFormat(
+                            Date.class);
 
-            			@Override
-            			public Component getTableCellRendererComponent(
-            					JTable table, Object value, boolean isSelected, 
-            					boolean hasFocus, int row, int column) {
-            				if (value instanceof Date){
-            					value = parser.format(value);
-            				}
-            				return super.getTableCellRendererComponent(table, 
-            						value, isSelected, hasFocus, row, column);
-            			}			
-            		});
+                    @Override public Component getTableCellRendererComponent(
+                            JTable  table,
+                            Object  value,
+                            boolean isSelected,
+                            boolean hasFocus,
+                            int     row,
+                            int     column) {
+                        if (value instanceof Date) {
+                            value = parser.format(value);
+                        }
+
+                        return super.getTableCellRendererComponent(table, value,
+                                isSelected, hasFocus, row, column);
+                    }
+                });
         }
+    }
 
+    void customizeTable() {
+        if (filterHeader.getTable() != null) {
+            customizeCountryColumn();
+            customizeAgeColumn();
+            customizeDateColumn();
+        }
     }
 
     void addTestData(boolean male) {
@@ -512,31 +1010,82 @@ public class TableFilterExample extends JFrame {
         tableModel.addTestData(td);
     }
 
-	void setPosition(Position position) {
-		if (filterHeader.getPosition()==Position.NONE){
-			filterHeaderPanel.remove(filterHeader);
-			tablePanel.remove(filterHeaderPanel);
-		}
-		filterHeader.setPosition(position);
-		if (filterHeader.getPosition()==Position.NONE){
-			filterHeaderPanel = new JPanel(new BorderLayout());
-			filterHeaderPanel.add(filterHeader, BorderLayout.CENTER);
-			filterHeaderPanel.setBorder(BorderFactory.createLineBorder(
-					filterHeader.getDisabledForeground(),1));
-			tablePanel.add(filterHeaderPanel, BorderLayout.SOUTH);
-		}
-		tablePanel.revalidate();
-	}
-	
-    public final static void main(String[] args) {
+    void setPosition(Position position) {
+        if (filterHeader.getPosition() == Position.NONE) {
+            filterHeaderPanel.remove(filterHeader);
+            tablePanel.remove(filterHeaderPanel);
+            tablePanel.revalidate();
+        }
 
-//        try {
-//			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//		}
-    	FilterSettings.autoOptions=true;    	
+        filterHeader.setPosition(position);
+        if (filterHeader.getPosition() == Position.NONE) {
+            filterHeaderPanel = new JPanel(new BorderLayout());
+            filterHeaderPanel.add(filterHeader, BorderLayout.CENTER);
+            filterHeaderPanel.setBorder(BorderFactory.createLineBorder(
+                    filterHeader.getDisabledForeground(), 1));
+            tablePanel.add(filterHeaderPanel, BorderLayout.SOUTH);
+            tablePanel.revalidate();
+        }
+    }
+
+    class Ages60sCustomChoice extends CustomChoice {
+        Calendar cal = Calendar.getInstance();
+
+        public Ages60sCustomChoice() {
+            super("sixties",
+                new ImageIcon(
+                    TableFilterExample.class.getResource("resources/60.png")));
+        }
+
+        @Override public RowFilter getFilter(IFilterEditor editor) {
+            final int modelIndex = editor.getModelIndex();
+
+            return new RowFilter() {
+                @Override public boolean include(RowFilter.Entry entry) {
+                    Object o = entry.getValue(modelIndex);
+                    if (o instanceof Date) {
+                        cal.setTime((Date) o);
+
+                        int year = cal.get(Calendar.YEAR);
+
+                        return (year >= 1960) && (year < 1969);
+                    }
+
+                    return false;
+                }
+            };
+        }
+
+        @Override public void decorateComponent(IFilterEditor editor,
+                                                boolean       isSelected,
+                                                JComponent    c,
+                                                Graphics      g) {
+            Icon icon = getIcon();
+            if (icon != null) {
+                Icon use;
+                if (c.isEnabled()) {
+                    use = icon;
+                } else {
+                    use = UIManager.getLookAndFeel().getDisabledIcon(c, icon);
+                }
+
+                Font font = editor.getLook().getCustomChoiceDecorator().getFont(
+                        this, editor, isSelected);
+                FontMetrics metrics = g.getFontMetrics(font);
+                int x = c.getWidth() - metrics.stringWidth(this.toString());
+                int y = (c.getHeight() - use.getIconHeight()) / 2;
+                use.paintIcon(c, g, x, y);
+            }
+        }
+    }
+
+    interface AutoChoicesSet {
+        void setAutoChoices(AutoChoices ao);
+    }
+
+    public final static void main(String args[]) {
+        FilterSettings.autoChoices = AutoChoices.ENABLED;
+
         TableFilterExample frame = new TableFilterExample();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();

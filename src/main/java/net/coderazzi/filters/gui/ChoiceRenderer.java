@@ -23,33 +23,23 @@
  * THE SOFTWARE.
  */
 
-package net.coderazzi.filters;
+package net.coderazzi.filters.gui;
 
-import net.coderazzi.filters.artifacts.RowFilter;
+import java.awt.Component;
 
 
 /**
- * Composed set of filters, added via logical AND, and then NOT-ed the result.
- *
- * @author  Luis M Pena - lu@coderazzi.net
+ * Interface to customize the rendering of choices in the {@link IFilterEditor}.
  */
-public class NotFilter extends AndFilter {
-
-    /** Default constructor. */
-    public NotFilter() {
-        super();
-    }
+public interface ChoiceRenderer {
 
     /**
-     * Constructor built up out of one or more {@link
-     * net.coderazzi.filters.IFilter} instances.
+     * Returns the component used to represent the choice (normally, an element
+     * from the associated table).<br>
+     * The value can be as well {@link CustomChoice} instances; to use the
+     * default rendering in this case, the method should return null.
      */
-    public NotFilter(IFilter... observables) {
-        super(observables);
-    }
-
-    /** @see  IFilter#include(RowFilter.Entry) */
-    @Override public boolean include(RowFilter.Entry rowEntry) {
-        return !isEnabled() || !super.include(rowEntry);
-    }
+    Component getRendererComponent(IFilterEditor editor,
+                                   Object        value,
+                                   boolean       isSelected);
 }

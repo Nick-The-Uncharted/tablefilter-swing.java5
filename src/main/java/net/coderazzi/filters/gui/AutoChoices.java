@@ -23,33 +23,23 @@
  * THE SOFTWARE.
  */
 
-package net.coderazzi.filters;
-
-import net.coderazzi.filters.artifacts.RowFilter;
-
+package net.coderazzi.filters.gui;
 
 /**
- * Composed set of filters, added via logical AND, and then NOT-ed the result.
- *
- * @author  Luis M Pena - lu@coderazzi.net
+ * Enumeration to define the available auto choices modes on a table filter or
+ * on each separated filter editor.
  */
-public class NotFilter extends AndFilter {
+public enum AutoChoices {
 
-    /** Default constructor. */
-    public NotFilter() {
-        super();
-    }
+    /** No auto choices, any choices must be explicitly inserted. */
+    DISABLED,
+
+    /** Enumerations and booleans automatically handled. */
+    ENUMS,
 
     /**
-     * Constructor built up out of one or more {@link
-     * net.coderazzi.filters.IFilter} instances.
+     * Choices extracted from the model, it is guaranteed that the choices
+     * include all the model's values, and only those.
      */
-    public NotFilter(IFilter... observables) {
-        super(observables);
-    }
-
-    /** @see  IFilter#include(RowFilter.Entry) */
-    @Override public boolean include(RowFilter.Entry rowEntry) {
-        return !isEnabled() || !super.include(rowEntry);
-    }
+    ENABLED
 }

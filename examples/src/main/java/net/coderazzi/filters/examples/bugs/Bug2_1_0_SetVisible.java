@@ -48,10 +48,10 @@ import net.coderazzi.filters.gui.TableFilterHeader.Position;
 
 
 /**
- * Previously to release 2.1.1, setting the header as non visible, 
- * would normally hide as well the header of the table 
- * (if autoplace was in order). Disabling it would also disable the header of
- * the table (this had not so much impact, but it was not properly done, anyway)
+ * Previously to release 2.1.1, setting the header as non visible, would
+ * normally hide as well the header of the table (if autoplace was in order).
+ * Disabling it would also disable the header of the table (this had not so much
+ * impact, but it was not properly done, anyway)
  */
 @SuppressWarnings({ "serial" })
 public class Bug2_1_0_SetVisible extends JFrame {
@@ -65,8 +65,8 @@ public class Bug2_1_0_SetVisible extends JFrame {
     JPanel mainPanel;
 
     public Bug2_1_0_SetVisible(Position position,
-                               boolean visible,
-                               boolean enabled) {
+                               boolean  visible,
+                               boolean  enabled) {
         super("Bug2_1_0_SetVisible");
         tableModel = TestTableModel.createTestTableModel(20);
         createGui(position, visible, enabled);
@@ -74,9 +74,10 @@ public class Bug2_1_0_SetVisible extends JFrame {
     }
 
     private void createGui(Position position,
-                           boolean visible,
-                           boolean enabled) {
+                           boolean  visible,
+                           boolean  enabled) {
         mainPanel = new JPanel(new BorderLayout());
+
         JScrollPane scrollPane = new JScrollPane();
         ButtonsPanel actions = new ButtonsPanel();
 
@@ -85,7 +86,7 @@ public class Bug2_1_0_SetVisible extends JFrame {
 
         table = new JTable(tableModel);
         scrollPane.setViewportView(table);
-        filterHeader = new TableFilterHeader(table, position);
+        filterHeader = new TableFilterHeader(table);
         filterHeader.setVisible(visible);
         filterHeader.setEnabled(enabled);
         if (position == Position.NONE) {
@@ -108,6 +109,7 @@ public class Bug2_1_0_SetVisible extends JFrame {
                             mainPanel.remove(filterHeader);
                             filterHeader.setPosition(position);
                         }
+
                         mainPanel.revalidate();
                     }
                 }
@@ -115,15 +117,15 @@ public class Bug2_1_0_SetVisible extends JFrame {
 
         actions.visibleCheckBox.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
-                    filterHeader.setVisible(e.getStateChange() 
-                    		== ItemEvent.SELECTED);
+                    filterHeader.setVisible(
+                        e.getStateChange() == ItemEvent.SELECTED);
                 }
             });
 
         actions.enabledCheckBox.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
-                    filterHeader.setEnabled(e.getStateChange()
-                    		== ItemEvent.SELECTED);
+                    filterHeader.setEnabled(
+                        e.getStateChange() == ItemEvent.SELECTED);
                 }
             });
 
@@ -132,23 +134,19 @@ public class Bug2_1_0_SetVisible extends JFrame {
 
     void customizeTable() {
         table.getColumnModel().getColumn(table.convertColumnIndexToView(
-        		tableModel.getColumn(TestTableModel.COUNTRY))).
-        		setCellRenderer(new FlagRenderer());
+                tableModel.getColumn(TestTableModel.COUNTRY))).setCellRenderer(
+            new FlagRenderer());
         table.getColumnModel().getColumn(table.convertColumnIndexToView(
-        		tableModel.getColumn(TestTableModel.AGE))).
-        		setCellRenderer(new CenteredRenderer());
-        filterHeader.setTableCellRenderer(
-        		tableModel.getColumn(TestTableModel.AGE), 
-        		new CenteredRenderer());
-        filterHeader.setTableCellRenderer(
-        		tableModel.getColumn(TestTableModel.COUNTRY), 
-        		new FlagRenderer());
+                tableModel.getColumn(TestTableModel.AGE))).setCellRenderer(
+            new CenteredRenderer());
+        filterHeader.getFilterEditor(tableModel.getColumn(
+                TestTableModel.COUNTRY)).setRenderer(new FlagRenderer());
     }
 
     static class ButtonsPanel extends JPanel {
         private static final long serialVersionUID = -4221513653085366887L;
-        JComboBox positionComboBox = 
-        	new JComboBox(new DefaultComboBoxModel(Position.values()));
+        JComboBox positionComboBox = new JComboBox(new DefaultComboBoxModel(
+                    Position.values()));
         JCheckBox visibleCheckBox = new JCheckBox("Visible", true);
         JCheckBox enabledCheckBox = new JCheckBox("Enabled", true);
 
@@ -177,14 +175,14 @@ public class Bug2_1_0_SetVisible extends JFrame {
     }
 
 
-    public static final void main(String[] args) {
+    public static final void main(String args[]) {
 
         StartDialog dialog = new StartDialog();
         dialog.pack();
         dialog.setVisible(true);
 
-        Bug2_1_0_SetVisible frame = new Bug2_1_0_SetVisible(
-        		(Position) dialog.actions.positionComboBox.getSelectedItem(),
+        Bug2_1_0_SetVisible frame = new Bug2_1_0_SetVisible((Position)
+                dialog.actions.positionComboBox.getSelectedItem(),
                 dialog.actions.visibleCheckBox.isSelected(),
                 dialog.actions.enabledCheckBox.isSelected());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -30,28 +30,63 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+
+import net.coderazzi.filters.gui.ChoiceRenderer;
+import net.coderazzi.filters.gui.IFilterEditor;
 
 
-public class FlagRenderer extends DefaultTableCellRenderer {
+public class FlagRenderer extends JLabel implements ChoiceRenderer,
+    TableCellRenderer {
 
-	private static final long serialVersionUID = -6640707874060161068L;
+    private static final long serialVersionUID = -6640707874060161068L;
 
-	@Override public Component getTableCellRendererComponent(JTable table, 
-			Object value, boolean isSelected, boolean hasFocus, int row, 
-			int column) {
-        JLabel label = (JLabel) super.getTableCellRendererComponent(table, 
-        		value, isSelected, hasFocus, row, column);
+    public FlagRenderer() {
+        setOpaque(true);
+    }
 
-        ImageIcon icon = (ImageIcon) value;
-        label.setIcon(icon);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        label.setText("");
-
-        if (icon != null) {
-            label.setToolTipText(icon.getDescription());
+    public Component getTableCellRendererComponent(JTable  table,
+                                                   Object  value,
+                                                   boolean isSelected,
+                                                   boolean hasFocus,
+                                                   int     row,
+                                                   int     column) {
+        Component ret = setup(value);
+        if (isSelected) {
+            ret.setBackground(table.getSelectionBackground());
+            ret.setForeground(table.getSelectionForeground());
+        } else {
+            ret.setBackground(table.getBackground());
+            ret.setForeground(table.getForeground());
         }
 
-        return label;
+        ret.setFont(table.getFont());
+
+        return ret;
     }
+
+    public Component getRendererComponent(IFilterEditor editor,
+                                          Object        value,
+                                          boolean       isSelected) {
+        Component ret = setup(value);
+        editor.getLook().setupComponent(ret, isSelected,
+            editor.getFilter().isEnabled());
+
+        return ret;
+    }
+
+    private Component setup(Object value) {
+
+        ImageIcon icon = (ImageIcon) value;
+        setIcon(icon);
+        setHorizontalAlignment(SwingConstants.CENTER);
+        setText("");
+
+        if (icon != null) {
+            setToolTipText(icon.getDescription());
+        }
+
+        return this;
+    }
+
 }

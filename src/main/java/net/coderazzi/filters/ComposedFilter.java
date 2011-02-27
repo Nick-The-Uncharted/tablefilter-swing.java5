@@ -36,61 +36,112 @@ import java.util.Set;
  *
  * @author  Luis M Pena - lu@coderazzi.net
  */
-abstract public class ComposedFilter extends BaseFilter implements IFilterObserver {
+abstract public class ComposedFilter extends Filter implements IFilterObserver {
 
-    /** Set of associated IFilters */
-    protected Set<IFilter> filters = new HashSet<IFilter>();
+    /** Set of associated IFilters. */
+    protected Set<IFilter> filters;
+
+    /** disabled filters. */
+    private Set<IFilter> disabledFilters = new HashSet<IFilter>();
+
+    /** Default constructor. */
+    protected ComposedFilter() {
+        filters = new HashSet<IFilter>();
+    }
 
     /**
-     * Constructor built up out of none or more 
-     * {@link net.coderazzi.filters.IFilter} instances
+     * Constructor built up out of one or more {@link
+     * net.coderazzi.filters.IFilter} instances.
      */
     protected ComposedFilter(IFilter... observables) {
+        this();
         addFilter(observables);
     }
 
     /**
-     * Detaches the instance from any observer
-     */
-    @Override public void detach() {
-        super.detach();
-        filters.clear();
-    }
-
-    /**
-     * Subscribes one or more {@link net.coderazzi.filters.IFilter} instances to 
+     * Subscribes one or more {@link net.coderazzi.filters.IFilter} instances to
      * receive filter events from this composition filter.
      */
     public void addFilter(IFilter... filtersToAdd) {
-        for (IFilter observable : filtersToAdd) {
-            if (filters.add(observable)) {
-                observable.addFilterObserver(this);
+        for (IFilter filter : filtersToAdd) {
+            if (filters.add(filter)) {
+                filter.addFilterObserver(this);
+                if (filter.isEnabled()) {
+                    super.setEnabled(true);
+                } else {
+                    disabledFilters.add(filter);
+                }
             }
         }
     }
 
     /**
-     * Unsubscribes a {@link net.coderazzi.filters.IFilter} that was previously
-     * subscribed to receive filter events
+     * Unsubscribes one or more {@link net.coderazzi.filters.IFilter}s that were
+     * previously subscribed to receive filter events.
      */
-    public void removeFilter(IFilter filter) {
-        if (filters.remove(filter)) {
-            reportFilterUpdatedToObservers();
+    public void removeFilter(IFilter... filtersToRemove) {
+        boolean report = false;
+        for (IFilter filter : filtersToRemove) {
+            if (filters.remove(filter)) {
+                filter.removeFilterObserver(this);
+                disabledFilters.remove(filter);
+                report = true;
+            }
+        }
+
+        if (report) {
+            if (isEnabled() && !filters.isEmpty()
+                    && (disabledFilters.size() == filters.size())) {
+                super.setEnabled(false);
+            } else {
+                reportFilterUpdatedToObservers();
+            }
         }
     }
 
     /**
-     * Returns all {@link net.coderazzi.filters.IFilter} instances previously added.
+     * Returns all {@link net.coderazzi.filters.IFilter} instances previously
+     * added.
      */
-    public Set<IFilter> getFilterObservables() {
+    public Set<IFilter> getFilters() {
         return new HashSet<IFilter>(filters);
     }
 
-    /**
-     * @see  IFilterObserver#filterUpdated(IFilter)
-     */
-    public void filterUpdated(IFilter producer) {
-        reportFilterUpdatedToObservers();
+    /** @see  IFilterObserver#filterUpdated(IFilter) */
+    public void filterUpdated(IFilter filter) {
+        boolean enabled = isEnabled();
+        boolean changeState = false;
+        if (filter.isEnabled()) {
+            changeState = disabledFilters.remove(filter) && !enabled;
+        } else {
+            changeState = disabledFilters.add(filter)
+                    && (disabledFilters.size() == filters.size());
+        }
+
+        if (changeState) {
+            super.setEnabled(!enabled);
+        } else {
+            reportFilterUpdatedToObservers();
+        }
+    }
+
+    /** @see  IFilter#setEnabled(boolean) */
+    @Override public void setEnabled(boolean enable) {
+        if (filters.isEmpty()) {
+            super.setEnabled(enable);
+        } else {
+            // perhaps some filter will not honor the request
+            // super.setEnabled is now only call when the filters report
+            // its update
+            for (IFilter filter : filters) {
+                filter.setEnabled(enable);
+            }
+        }
+    }
+
+    /** Returns true if there is information of this filter as disabled. */
+    protected boolean isDisabled(IFilter filter) {
+        return disabledFilters.contains(filter);
     }
 
 }

@@ -25,31 +25,29 @@
 
 package net.coderazzi.filters;
 
+import java.text.ParseException;
+
 import net.coderazzi.filters.artifacts.RowFilter;
 
 
 /**
- * Composed set of filters, added via logical AND, and then NOT-ed the result.
+ * Interface defining the requirements on text parsing for filter expressions.
  *
  * @author  Luis M Pena - lu@coderazzi.net
  */
-public class NotFilter extends AndFilter {
-
-    /** Default constructor. */
-    public NotFilter() {
-        super();
-    }
+public interface IParser {
 
     /**
-     * Constructor built up out of one or more {@link
-     * net.coderazzi.filters.IFilter} instances.
+     * Parses the text, returning a filter that can be applied to the table.
+     *
+     * @param  expression  the text to parse
      */
-    public NotFilter(IFilter... observables) {
-        super(observables);
-    }
+    RowFilter parseText(String expression) throws ParseException;
 
-    /** @see  IFilter#include(RowFilter.Entry) */
-    @Override public boolean include(RowFilter.Entry rowEntry) {
-        return !isEnabled() || !super.include(rowEntry);
-    }
+    /**
+     * Escapes a given expression, such that, when parsed, the parser will make
+     * no character/operator substitutions.
+     */
+    String escape(String s);
+
 }

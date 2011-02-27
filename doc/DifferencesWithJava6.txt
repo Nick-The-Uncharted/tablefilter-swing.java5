@@ -1,0 +1,43 @@
+The source code on tablefilter-swing and tablefilter-swing-java5 is,
+functionally, mostly equivalent.
+
+A generic modification in the code is that the Java 5 version removes all
+the @Override annotations incompatible with JDK 5 (defining a interface's
+method cannot be declared as @Override on Java 5)
+
+The second modification relates to the absence of the type javax.swing.RowFilter
+in Java 5; all references to this type are replaced with the type
+net.coderazzi.filters.artifacts.RowFilter
+
+In addition to these common changes, following files contain more specific 
+differences:
+
+net.coderazzi.filters.gui.IFilterEditor
+---------------------------------------
+ Different comment for setComparator method
+ (In java 6, the comparator is also set in the underlying sort model)
+ 
+net.coderazzi.filters.gui.editor.FilterEditor
+---------------------------------------------
+ Minor changes related to the different handling of comparators
+ (In java 6, the comparator is also set in the underlying sort model)
+  
+net.coderazzi.filters.gui.editor.PopupComponent
+-----------------------------------------------
+ The MouseHandler class is different (in Java 5 it implements specifically
+ the MouseMotionListener interface)
+  
+net.coderazzi.filters.gui.NonAdaptiveChoicesHandler
+-----------------------------------------------
+ In Java5, it is not possible to support properly modify / delete row operations
+  
+net.coderazzi.filters.gui.TableFilterHeader
+-------------------------------------------
+ In Java5, there is no support for adaptive or autoselection support
+  
+net.coderazzi.filters.gui.FiltersHandler
+-------------------------------------------
+ This class includes most changes, both implementations are quite different
+ 
+[Examples not included in the list]
+    

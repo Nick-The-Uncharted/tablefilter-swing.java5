@@ -25,6 +25,7 @@
 
 package net.coderazzi.filters.artifacts;
 
+
 /**
  * <p>Class defined for compatibility with Java 6</p>
  *
@@ -33,30 +34,37 @@ package net.coderazzi.filters.artifacts;
 abstract public class RowFilter {
 
     /**
-     * Specifies whether the specified entry should be shown or hidden
+     * Specifies whether the specified entry should be shown or hidden.
      *
      * @return  true to show the entry
      */
     public abstract boolean include(RowFilter.Entry entry);
 
     /**
+     * .
+     *
      * <p>Class defined for compatibility with Java 6</p>
      */
     public static abstract class Entry {
 
-        /**
-         * Returns the string value at the specified index.
-         */
+        /** Returns the string value at the specified index. */
         public String getStringValue(int index) {
             Object value = getValue(index);
 
             return (value == null) ? "" : value.toString();
         }
 
-        /**
-         * Returns the value at the specified index.
-         */
+        /** Returns the row number. */
+        public abstract Object getIdentifier();
+
+        /** Returns the value at the specified index. */
         public abstract Object getValue(int index);
+
+        /** Returns the underlying model. */
+        public abstract Object getModel();
+
+        /** Returns the number of columns. */
+        public abstract int getValueCount();
 
     }
 }

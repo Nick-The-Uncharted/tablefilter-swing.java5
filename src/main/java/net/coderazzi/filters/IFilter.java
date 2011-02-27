@@ -29,29 +29,31 @@ import net.coderazzi.filters.artifacts.RowFilter;
 
 
 /**
- * <p>Interface to be implemented by any instance holding a filter than 
- * can be updated dynamically.</p>
+ * <p>Interface to be implemented by any instance holding a filter than can be
+ * updated dynamically.</p>
  *
- * <p>Ant change on the filter is propagated to the observers, 
- * in no prefixed order.</p>
+ * <p>Any change on the filter is propagated to the observers, in no prefixed
+ * order.</p>
  *
  * @author  Luis M Pena - lu@coderazzi.net
  */
 public interface IFilter {
 
-    /**
-     * Adds an observer to receive filter change notifications.
-     */
-    public void addFilterObserver(IFilterObserver observer);
+    /** {@link RowFilter} interface. */
+    boolean include(RowFilter.Entry rowEntry);
+
+    /** Returns true if the filter is enabled. */
+    boolean isEnabled();
+
+    /** Enables/Disables the filter. */
+    void setEnabled(boolean enable);
+
+    /** Adds an observer to receive filter change notifications. */
+    void addFilterObserver(IFilterObserver observer);
 
     /**
-     * Unregisters an observer, that will not receive 
-     * any further filter update notifications.
+     * Unregisters an observer, that will not receive any further filter update
+     * notifications.
      */
-    public void removeFilterObserver(IFilterObserver observer);
-
-    /**
-     * RowFilter interface
-     */
-	public boolean include(RowFilter.Entry rowEntry);
+    void removeFilterObserver(IFilterObserver observer);
 }
