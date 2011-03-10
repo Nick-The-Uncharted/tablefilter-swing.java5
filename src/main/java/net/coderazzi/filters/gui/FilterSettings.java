@@ -45,39 +45,63 @@ public class FilterSettings {
     /** Properties must be defined with this prefix. */
     public final static String PROPERTIES_PREFIX = "net.coderazzi.filters.";
 
-    /**
-     * Set to true to perform automatically the selection of a row that is
-     * uniquely identified by the existing filter. It is true by default.
-     */
-    public static boolean autoSelection = Boolean.parseBoolean(getString(
-                "AutoSelection", "true"));
-
-    /**
-     * Whether to automatically fill with content the editor field's choices.
-     */
+    /** If and how to provide content to the editor field's choices. */
     public static AutoChoices autoChoices;
 
-    /** Whether to enable adaptive choices, true by default. */
-    public static boolean adaptiveChoices = Boolean.parseBoolean(getString(
-                "AdaptiveChoices", "true"));
+    /** Whether to enable auto completion, true by default. */
+    public static boolean autoCompletion = Boolean.parseBoolean(getString(
+                "AutoCompletion", "true"));
 
-    /** Whether to ignore case or not, false by default (case sensitive). */
-    public static boolean ignoreCase = Boolean.parseBoolean(getString(
-                "IgnoreCase", "true"));
+    /** Header's background color. */
+    public static Color backgroundColor = getColor("BackgroundColor", null);
+
+    /**
+     * The class defining the generic {@link IParserModel}<br>
+     * It must have a default constructor.<br>
+     * It corresponds to the property ParserModel.class
+     */
+    public static Class<? extends CustomChoiceDecorator> customChoiceDecoratorClass;
+
+    /** The default date format, used on the default filter model. */
+    public static String dateFormat = getString("DateFormat", null);
+
+    /** Header's disabled color. */
+    public static Color disabledBackgroundColor = getColor(
+            "DisabledBackgroundColor", null);
+
+    /** Header's disabled color. */
+    public static Color disabledColor = getColor("DisabledColor", null);
+
+    /** Header's error color. */
+    public static Color errorColor = getColor("ErrorColor", null);
+
+    /** 
+     * Setting to add / decrease height to the filter row.<br>
+     * This setting could be specifically required on specific Look And Feels 
+     * -Substance seems to require additional height.<br>
+     */
+    public static int filterRowHeightDelta = getInteger("FilterRowHeightDelta", 0);
+
+    /** Header's font. */
+    public static Font font;
+
+    /** Header's foreground color. */
+    public static Color foregroundColor = getColor("ForegroundColor", null);
+
+    /** Header's grid color. */
+    public static Color gridColor = getColor("GridColor", null);
 
     /** The header position, {@link Position#INLINE} by default. */
     public static Position headerPosition = Position.valueOf(getString(
                 "Header.Position", "INLINE"));
 
-    /** The default date format, used on the default filter model. */
-    public static String dateFormat = getString("DateFormat", null);
+    /** Whether to ignore case or not, false by default (case sensitive). */
+    public static boolean ignoreCase = Boolean.parseBoolean(getString(
+                "IgnoreCase", "true"));
 
-    /** The maximum number of visible tows on the popup menus. */
-    public static int maxVisiblePopupRows = getInteger("Popup.maxVisibleRows",
-            8);
-
-    /** The maximum size of the history when no choices are present. */
-    public static int maxPopupHistory = getInteger("Popup.maxHistory", 2);
+    /** Whether to enable instant filtering, true by default. */
+    public static boolean instantFiltering = Boolean.parseBoolean(getString(
+                "InstantFiltering", "true"));
 
     /** The default icon used to represent null/empty values. */
     public static Icon matchEmptyFilterIcon = new ImageIcon(IParser.class
@@ -92,38 +116,12 @@ public class FilterSettings {
      */
     public static String matchEmptyFilterString = "=";
 
-    /** Header's background color. */
-    public static Color backgroundColor = getColor("backgroundColor", null);
+    /** The maximum size of the history when no choices are present. */
+    public static int maxPopupHistory = getInteger("Popup.MaxHistory", 2);
 
-    /** Header's foreground color. */
-    public static Color foregroundColor = getColor("foregroundColor", null);
-
-    /** Header's error color. */
-    public static Color errorColor = getColor("errorColor", Color.red);
-
-    /** Header's grid color. */
-    public static Color gridColor = getColor("gridColor", null);
-
-    /** Header's disabled color. */
-    public static Color disabledColor = getColor("disabledColor", null);
-
-    /** Header's disabled color. */
-    public static Color disabledBackgroundColor = getColor(
-            "disabledBackgroundColor", null);
-
-    /** Header's selection background color. */
-    public static Color selectionBackgroundColor = getColor(
-            "selectionBackgroundColor", null);
-
-    /** Header's selection foreground color. */
-    public static Color selectionForegroundColor = getColor(
-            "selectionForegroundColor", null);
-
-    /** Header's selection color. */
-    public static Color selectionColor = getColor("selectionColor", null);
-
-    /** Header's font. */
-    public static Font font;
+    /** The maximum number of visible tows on the popup menus. */
+    public static int maxVisiblePopupRows = getInteger("Popup.MaxVisibleRows",
+            8);
 
     /**
      * The class defining the generic {@link IParserModel}<br>
@@ -132,12 +130,16 @@ public class FilterSettings {
      */
     public static Class<? extends IParserModel> parserModelClass;
 
-    /**
-     * The class defining the generic {@link IParserModel}<br>
-     * It must have a default constructor.<br>
-     * It corresponds to the property ParserModel.class
-     */
-    public static Class<? extends CustomChoiceDecorator> customChoiceDecoratorClass;
+    /** Header's selection background color. */
+    public static Color selectionBackgroundColor = getColor(
+            "SelectionBackgroundColor", null);
+
+    /** Header's selection color. */
+    public static Color selectionColor = getColor("SelectionColor", null);
+
+    /** Header's selection foreground color. */
+    public static Color selectionForegroundColor = getColor(
+            "SelectionForegroundColor", null);
 
     /** Creates a TextParser as defined by default. */
     public static IParserModel newParserModel() {
@@ -161,7 +163,7 @@ public class FilterSettings {
 
     static {
         try {
-            font = Font.decode(getString("font"));
+            font = Font.decode(getString("Font"));
         } catch (Exception ex) {
             // font remains null
         }
@@ -175,7 +177,7 @@ public class FilterSettings {
 
         parserModelClass = ParserModel.class;
 
-        String cl = getString("ParserModel.class", null);
+        String cl = getString("ParserModel.Class", null);
         if (cl != null) {
             try {
                 parserModelClass = (Class<? extends IParserModel>) Class
@@ -191,7 +193,7 @@ public class FilterSettings {
 
         customChoiceDecoratorClass =
             CustomChoiceDecorator.DefaultDecorator.class;
-        cl = getString("CustomChoiceDecorator.class", null);
+        cl = getString("CustomChoiceDecorator.Class", null);
         if (cl != null) {
             try {
                 customChoiceDecoratorClass =

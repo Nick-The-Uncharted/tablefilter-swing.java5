@@ -31,15 +31,13 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import java.text.Format;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -66,7 +64,7 @@ import net.coderazzi.filters.gui.editor.FilterEditor;
  * this Swing component is better suited to be displayed atop, inline the {@link
  * JTable}, or just below, using the same size -and resizing- as the table
  * itself. The position can be automatically handled by the header itself -that
- * is the default behavior-</p>
+ * is the default behaviour-</p>
  *
  * <p>The editor associated to each column has the type {@link IFilterEditor},
  * and can be manipulated separately.</p>
@@ -130,8 +128,17 @@ public class TableFilterHeader extends JPanel {
     /** Appearance instance. */
     Look look = new Look();
 
+    /** Flag to handle instant filtering support */
+    boolean instantFilteringEnabled = FilterSettings.instantFiltering;
+
+    /** Flag to handle auto completion support */
+    boolean autoCompletionEnabled = FilterSettings.autoCompletion;
+
     /** This is the total max number of visible rows (history PLUS choices). */
     int maxHistory = FilterSettings.maxPopupHistory;
+    
+    /** Setting to add / decrease height to the filter row */
+    int filterRowHeightDelta = FilterSettings.filterRowHeightDelta;
 
     /**
      * The columnsController is a glue component, controlling the filters
@@ -257,6 +264,44 @@ public class TableFilterHeader extends JPanel {
         return filtersHandler.getAutoChoices();
     }
 
+    /** 
+     * Enables instant filtering, as the user edits the filter's text<br>
+     * The exact way the instant filtering works depends on the
+     * associated {@see IParser#parseInstantText(String)} implementation
+     */
+    public void setInstantFiltering(boolean enable){
+    	if (this.instantFilteringEnabled != enable){
+    		this.instantFilteringEnabled = enable;
+    		if (columnsController != null){
+    			for (FilterEditor fe : columnsController){
+    				fe.setInstantFiltering(enable);
+    			}
+    		}
+    	}
+    }
+
+    /** Returns true if instant filtering is enabled */
+    public boolean isInstantFiltering(){
+    	return this.instantFilteringEnabled;
+    }
+    
+    /** Enables instant filtering, as the user edits the filter's text*/
+    public void setAutoCompletion(boolean enable){
+    	if (this.autoCompletionEnabled != enable){
+    		this.autoCompletionEnabled = enable;
+    		if (columnsController != null){
+    			for (FilterEditor fe : columnsController){
+    				fe.setAutoCompletion(enable);
+    			}
+    		}
+    	}
+    }
+
+    /** Returns true if instant filtering is enabled */
+    public boolean isAutoCompletion(){
+    	return this.autoCompletionEnabled;
+    }
+    
     /** Hides / makes visible the header. */
     @Override public void setVisible(boolean flag) {
         if (isVisible() != flag) {
@@ -319,7 +364,9 @@ public class TableFilterHeader extends JPanel {
     public void setMaxHistory(int maxHistory) {
         this.maxHistory = maxHistory;
         if (columnsController != null) {
-            columnsController.setMaxHistory(maxHistory);
+        	for (FilterEditor fe : columnsController){
+        		fe.setMaxHistory(maxHistory);
+        	}
         }
     }
 
@@ -357,7 +404,9 @@ public class TableFilterHeader extends JPanel {
 
         if (columnsController != null) {
             filtersHandler.enableNotifications(false);
-            columnsController.resetFilters();
+            for (FilterEditor fe : columnsController){
+            	fe.resetFilter();
+            }
             filtersHandler.enableNotifications(true);
         }
     }
@@ -384,26 +433,26 @@ public class TableFilterHeader extends JPanel {
         }
     }
 
-    /** Sets the color used for disabled fields. */
+    /** Returns the color used for disabled editors. */
     public void setDisabledForeground(Color dfg) {
         this.disabledColorSet = true;
         look.disabledForeground = dfg;
         lookUpdated();
     }
 
-    /** Sets the color used for disabled fields. */
+    /** Sets the color used for disabled editors. */
     public Color getDisabledForeground() {
         return look.disabledForeground;
     }
 
-    /** Sets the background color used for disabled fields. */
+    /** Sets the background color used for disabled editors. */
     public void setDisabledBackground(Color dbg) {
         this.disabledBgColorSet = true;
         look.disabledBackground = dbg;
         lookUpdated();
     }
 
-    /** Sets the background color used for disabled fields. */
+    /** Returns the background color used for disabled editors. */
     public Color getDisabledBackground() {
         return look.disabledBackground;
     }
@@ -415,12 +464,7 @@ public class TableFilterHeader extends JPanel {
         lookUpdated();
     }
 
-    /**
-     * <p>Returns the color set by default as foreground on selected filters</p>
-     *
-     * <p>Note that the color of each specific editor can be different, if the
-     * user customizes it directly</p>
-     */
+    /** Returns the foreground color on focused editors. */
     public Color getSelectionForeground() {
         return look.selectionForeground;
     }
@@ -432,12 +476,7 @@ public class TableFilterHeader extends JPanel {
         lookUpdated();
     }
 
-    /**
-     * <p>Returns the color set by default as foreground on selected filters</p>
-     *
-     * <p>Note that the color of each specific editor can be different, if the
-     * user customizes it directly</p>
-     */
+    /** Returns the background color on focused editors. */
     public Color getSelectionBackground() {
         return look.selectionBackground;
     }
@@ -449,12 +488,7 @@ public class TableFilterHeader extends JPanel {
         lookUpdated();
     }
 
-    /**
-     * <p>Returns the color set by default as text selection on filters</p>
-     *
-     * <p>Note that the color of each specific editor can be different, if the
-     * user customizes it directly</p>
-     */
+    /** Returns the color set by default as text selection on filters */
     public Color getTextSelectionColor() {
         return look.textSelection;
     }
@@ -470,11 +504,8 @@ public class TableFilterHeader extends JPanel {
     }
 
     /**
-     * <p>Returns the color set by default as foreground on each text editor
-     * when the user commits any error on the filter expression.</p>
-     *
-     * <p>Note that the color of each specific editor can be different, if the
-     * user customizes it directly</p>
+     * Returns the color set by default as foreground on each text editor
+     * when the user commits any error on the filter expression.
      */
     public Color getErrorForeground() {
         return look.errorForeground;
@@ -487,11 +518,7 @@ public class TableFilterHeader extends JPanel {
         lookUpdated();
     }
 
-    /**
-     * .
-     *
-     * <p>Returns the color set by default for the header's grid</p>
-     */
+    /** Returns the color set by default for the header's grid */
     public Color getGridColor() {
         return look.gridColor;
     }
@@ -506,7 +533,19 @@ public class TableFilterHeader extends JPanel {
             revalidate();
         }
     }
+    
+    /** Setting to add / decrease height to the filter row. */
+    public void setRowHeightDelta(int filterRowHeightDelta){
+    	this.filterRowHeightDelta = filterRowHeightDelta;
+    	if (columnsController!=null){
+    		columnsController.updateHeight();
+    	}
+    }
 
+    /** Returns the filter row's height delta. */
+    public int getRowHeightDelta(){
+    	return filterRowHeightDelta;
+    }
 
     /** Sets the {@link CustomChoiceDecorator} instance. */
     public void setCustomChoiceDecorator(CustomChoiceDecorator decorator) {
@@ -732,7 +771,7 @@ public class TableFilterHeader extends JPanel {
      * more columns, this class reacts by reordering internal data structures
      */
     private class FilterColumnsControllerPanel extends JPanel
-        implements TableColumnModelListener, Runnable {
+        implements TableColumnModelListener, Runnable, Iterable<FilterEditor>  {
 
         private static final long serialVersionUID = -5183169239497633085L;
 
@@ -785,12 +824,30 @@ public class TableFilterHeader extends JPanel {
                 createColumn(i, enabled);
             }
 
-            preferredSize = new Dimension(0,
-                    (count == 0) ? 0 : columns.get(0).h);
+            preferredSize = new Dimension(0, (count == 0) ? 0 : columns.get(0).h  + filterRowHeightDelta);
             placeComponents();
             tableColumnModel.addColumnModelListener(this);
         }
-
+        
+        /** {@see Iterable} interface */
+        public Iterator<FilterEditor> iterator() {
+        	final Iterator<FilterColumnPanel> it = columns.iterator();
+			return new Iterator<FilterEditor>() {
+        		
+				public void remove() {
+					//not supported
+				}
+				
+				public FilterEditor next() {
+					return it.next().editor;
+				}
+				
+				public boolean hasNext() {
+					return it.hasNext();
+				}
+			};
+        }
+        
         /** Creates the FilterColumnPanel for the given column number. */
         private void createColumn(int columnView, boolean enableIt) {
             int columnModel = getTable().convertColumnIndexToModel(columnView);
@@ -807,6 +864,8 @@ public class TableFilterHeader extends JPanel {
             FilterEditor ret = new FilterEditor(filtersHandler, modelColumn,
                     getTable().getModel().getColumnClass(modelColumn), look);
             ret.setMaxHistory(maxHistory);
+            ret.setInstantFiltering(instantFilteringEnabled);
+            ret.setAutoCompletion(autoCompletionEnabled);
             ret.getFilter().setEnabled(enableIt);
             filtersHandler.addFilterEditor(ret);
 
@@ -833,30 +892,16 @@ public class TableFilterHeader extends JPanel {
         }
 
         /** Computes the proper preferred height -width is not important-. */
-        private void updateHeight() {
+        public void updateHeight() {
             int h = 0;
 
             for (FilterColumnPanel c : columns) {
                 h = Math.max(h, c.h);
             }
 
-            preferredSize.height = h;
+            preferredSize.height = h  + filterRowHeightDelta;
             placeComponents();
             repaint();
-        }
-
-        /** Invokes resetFilter on all the editors. */
-        public void resetFilters() {
-            for (FilterColumnPanel column : columns) {
-                column.editor.resetFilter();
-            }
-        }
-
-        /** Sets the maximum history popup menu. */
-        public void setMaxHistory(int maxHistory) {
-            for (FilterColumnPanel column : columns) {
-                column.editor.setMaxHistory(maxHistory);
-            }
         }
 
         public void setLook(Look look) {

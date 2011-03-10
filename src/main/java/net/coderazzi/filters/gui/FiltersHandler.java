@@ -27,7 +27,6 @@ package net.coderazzi.filters.gui;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +35,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableModel;
 
 import net.coderazzi.filters.AndFilter;
+import net.coderazzi.filters.Filter;
 import net.coderazzi.filters.IFilter;
 import net.coderazzi.filters.IFilterObserver;
 import net.coderazzi.filters.artifacts.ITableModelFilter;
@@ -98,6 +98,9 @@ public class FiltersHandler extends AndFilter
     /** The associated filter model. */
     private IParserModel parserModel;
 
+    /** The associated filter model. */
+    private Filter applyingFilter;
+    
     /** Only constructor. */
     FiltersHandler() {
 
@@ -131,6 +134,7 @@ public class FiltersHandler extends AndFilter
         return table;
     }
 
+    /** Sets the {@link IParserModel} instance */ 
     public void setParserModel(IParserModel parserModel) {
         if ((parserModel != null) && (parserModel != this.parserModel)) {
             if (this.parserModel != null) {
@@ -150,6 +154,7 @@ public class FiltersHandler extends AndFilter
         this.parserModel = parserModel;
     }
 
+    /** Returns the registered {@link IParserModel} instance */ 
     public IParserModel getParserModel() {
         return parserModel;
     }
@@ -220,26 +225,28 @@ public class FiltersHandler extends AndFilter
         return autoChoices;
     }
 
+    /** {@link ComposedFilter} interface */
     @Override public void addFilter(IFilter... filtersToAdd) {
         choicesHandler.filterOperation(true);
         super.addFilter(filtersToAdd);
         choicesHandler.filterOperation(false);
     }
 
+    /** {@link ComposedFilter} interface */
     @Override public void removeFilter(IFilter... filtersToRemove) {
         choicesHandler.filterOperation(true);
         super.removeFilter(filtersToRemove);
         choicesHandler.filterOperation(false);
     }
 
-    /** Adds a new filter editor. */
+    /** Adds a new filter editor, called from the {@link TableFilterHeader} */
     public void addFilterEditor(FilterEditor editor) {
         super.addFilter(editor.getFilter());
         editors.put(editor.getModelIndex(), editor);
         editor.setAutoChoices(autoChoices);
     }
 
-    /** Removes an existing editor. */
+    /** Removes a filter editor, called from the {@link TableFilterHeader} */
     public void removeFilterEditor(FilterEditor editor) {
         super.removeFilter(editor.getFilter());
         editors.remove(editor.getModelIndex());
@@ -255,17 +262,37 @@ public class FiltersHandler extends AndFilter
             choicesHandler.editorUpdated(editor);
         }
     }
-
+    
+    /** {@link ComposedFilter} interface */
     @Override public void filterUpdated(IFilter filter) {
         boolean wasEnabled = isEnabled();
         boolean filterWasDisabled = isDisabled(filter);
-        choicesHandler.filterUpdated(filter);
+        if (filter!=applyingFilter){
+        	choicesHandler.filterUpdated(filter, false);
+        }
         super.filterUpdated(filter);
         if (filterWasDisabled && filter.isEnabled()) {
             choicesHandler.filterEnabled(filter);
         } else if (wasEnabled && !isEnabled()) {
             choicesHandler.allFiltersDisabled();
         }
+    }
+    
+    /**
+     * Applies the passed filter, from an associated editor, and, on success,
+     * reports it to observers.
+     * This method can be called -instead of the usual 
+     * FilterEditor.reportFilterUpdatedToObservers
+     * to detect if the new filter will filter out all the rows.
+     */
+    public boolean applyEditorFilter(Filter filter){
+    	boolean ret = choicesHandler.filterUpdated(filter, true); 
+    	if (ret){
+    		applyingFilter = filter;
+    		filter.reportFilterUpdatedToObservers();
+    		applyingFilter = null;
+    	}
+    	return ret;
     }
 
     /** Internal method to set/update the filtering. */
@@ -279,10 +306,12 @@ public class FiltersHandler extends AndFilter
         }
     }
 
+    /** Returns all registered {@link FilterEditor}s */
     public Collection<FilterEditor> getEditors() {
         return editors.values();
     }
 
+    /** Returns the {@link FilterEditor} instance on the given column */
     public FilterEditor getEditor(int column) {
         return editors.get(column);
     }
@@ -315,7 +344,7 @@ public class FiltersHandler extends AndFilter
                 }
             }
         } else if (choicesHandler.setInterrupted(true)) {
-            updateTableFilter();
+            //updateTableFilter();
         }
     }
 
@@ -331,6 +360,7 @@ public class FiltersHandler extends AndFilter
         }
     }
 
+    
     /**
      * Returns the row filter associated to the current table, creating a
      * default one if none.
