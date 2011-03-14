@@ -29,9 +29,9 @@ This project corresponds to the Java5 version</description>
 		<url>http://code.google.com/p/tablefilter-swing/issues/list</url>
 	</issueManagement>
 	<scm>
-		<url>scm:hg:file:///development/workspace/tablefilter-swing-java5</url>
-		<connection>scm:hg:file:///development/workspace/tablefilter-swing-java5</connection>
-		<developerConnection>scm:hg:file:///development/workspace/tablefilter-swing-java5</developerConnection>
+		<url>scm:hg:file:///home/luismi/development/workspace/tablefilter-swing-java5</url>
+		<connection>scm:hg:file:///home/luismi/development/workspace/tablefilter-swing-java5</connection>
+		<developerConnection>scm:hg:file:///home/luismi/development/workspace/tablefilter-swing-java5</developerConnection>
 	</scm>
 	<dependencies>
 		<dependency>
@@ -57,7 +57,7 @@ This project corresponds to the Java5 version</description>
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.1</version>
 				<configuration>
-					<tagBase>file:///development/workspace/tablefilter-swing-java5</tagBase>
+					<tagBase>file:///home/luismi/development/workspace/tablefilter-swing-java5</tagBase>
 					<mavenExecutorId>forked-path</mavenExecutorId>
 				</configuration>
 			</plugin>
