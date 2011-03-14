@@ -62,7 +62,7 @@ public interface IFilterTextParser {
     RowFilter parseText(String expression, int modelPosition)
                  throws ParseException;
 
-    /** Ignores case -if the operator is string based- */
+    /** Ignores case -if the operator is string based-. */
     void setIgnoreCase(boolean ignore);
 
     /** Returns true if it ignores case. */

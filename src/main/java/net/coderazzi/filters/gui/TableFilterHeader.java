@@ -270,8 +270,8 @@ public class TableFilterHeader extends JPanel {
 
     /**
      * Enables instant filtering, as the user edits the filter's text<br>
-     * The exact way the instant filtering works depends on the associated {@see
-     * IParser#parseInstantText(String)} implementation.
+     * The exact way the instant filtering works depends on the associated
+     * {@link IParser#parseInstantText(String)} implementation.
      */
     public void setInstantFiltering(boolean enable) {
         if (this.instantFilteringEnabled != enable) {
@@ -836,7 +836,7 @@ public class TableFilterHeader extends JPanel {
             tableColumnModel.addColumnModelListener(this);
         }
 
-        /** {@see Iterable} interface. */
+        /** {@link Iterable} interface. */
         public Iterator<FilterEditor> iterator() {
             final Iterator<FilterColumnPanel> it = columns.iterator();
 
