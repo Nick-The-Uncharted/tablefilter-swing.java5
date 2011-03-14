@@ -37,34 +37,41 @@ import net.coderazzi.filters.artifacts.TableModelFilter;
 import net.coderazzi.filters.examples.ActionHandler;
 import net.coderazzi.filters.examples.TableSorter;
 
+
 public class MaleRenderer implements TableCellRenderer {
 
-	private static final long serialVersionUID = 8042527267257156699L;
+    private static final long serialVersionUID = 8042527267257156699L;
 
-	private ActionHandler main;
-	private TableSorter tableSorter;
-	private Border redBorder;
-	private TableCellRenderer delegate;
-	
-	public MaleRenderer(ActionHandler main, TableSorter tableSorter) {
-		this.main = main;
-		this.tableSorter = tableSorter;
-		delegate = main.getTable().getDefaultRenderer(Boolean.class);
-		redBorder = BorderFactory.createLineBorder(Color.red);
-	}
+    private ActionHandler     main;
+    private TableSorter       tableSorter;
+    private Border            redBorder;
+    private TableCellRenderer delegate;
 
-	public Component getTableCellRendererComponent(JTable table, Object value,
-			boolean isSelected, boolean hasFocus, int row, int column) {
-		JComponent c = (JComponent) delegate.getTableCellRendererComponent(
-				table, value, isSelected, hasFocus, row, column);
-		TestTableModel tm = main.getTableModel();
-		// >>special difference with Java 6
-		int modelRow = ((TableModelFilter) table.getModel()).convertRowIndexToModel(row);
-		modelRow = tableSorter.modelIndex(modelRow);
-		//<<<<
-		if (tm.isModified(tm.getRow(modelRow))) {
-			c.setBorder(redBorder);
-		}
-		return c;
-	}
+    public MaleRenderer(ActionHandler main, TableSorter tableSorter) {
+        this.main = main;
+        this.tableSorter = tableSorter;
+        delegate = main.getTable().getDefaultRenderer(Boolean.class);
+        redBorder = BorderFactory.createLineBorder(Color.red);
+    }
+
+    public Component getTableCellRendererComponent(JTable  table,
+                                                   Object  value,
+                                                   boolean isSelected,
+                                                   boolean hasFocus,
+                                                   int     row,
+                                                   int     column) {
+        JComponent     c = (JComponent) delegate.getTableCellRendererComponent(
+                table, value, isSelected, hasFocus, row, column);
+        TestTableModel tm = main.getTableModel();
+        // >>special difference with Java 6
+        int modelRow = ((TableModelFilter) table.getModel())
+                .convertRowIndexToModel(row);
+        modelRow = tableSorter.modelIndex(modelRow);
+        // <<<<
+        if (tm.isModified(tm.getRow(modelRow))) {
+            c.setBorder(redBorder);
+        }
+
+        return c;
+    }
 }

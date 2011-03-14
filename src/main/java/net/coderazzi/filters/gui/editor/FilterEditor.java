@@ -85,20 +85,20 @@ import net.coderazzi.filters.parser.DateComparator;
 public class FilterEditor extends JComponent implements IFilterEditor {
 
     private static final long serialVersionUID = 6908400421021655278L;
-    private EditorBorder border = new EditorBorder();
+    private EditorBorder      border = new EditorBorder();
     private Set<CustomChoice> customChoices;
-    private AutoChoices autoChoices;
-    private Format format;
-    private Comparator comparator;
-    private boolean ignoreCase;
-    private Class modelClass;
+    private AutoChoices       autoChoices;
+    private Format            format;
+    private Comparator        comparator;
+    private boolean           ignoreCase;
+    private Class             modelClass;
 
-    FiltersHandler filtersHandler;
+    FiltersHandler    filtersHandler;
     FilterArrowButton downButton = new FilterArrowButton();
-    EditorFilter filter = new EditorFilter();
-    EditorComponent editor;
-    PopupComponent popup;
-    int modelIndex;
+    EditorFilter      filter = new EditorFilter();
+    EditorComponent   editor;
+    PopupComponent    popup;
+    int               modelIndex;
 
     public FilterEditor(FiltersHandler filtersHandler,
                         int            modelIndex,
@@ -162,7 +162,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
 
     /** IFilterEditor method. */
     public void setContent(Object content) {
-        setEditorContent(content==null? CustomChoice.MATCH_ALL : content);
+        setEditorContent((content == null) ? CustomChoice.MATCH_ALL : content);
     }
 
     /** IFilterEditor method. */
@@ -174,14 +174,16 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     public void setAutoChoices(AutoChoices autoChoices) {
         if ((autoChoices != null) && (autoChoices != this.autoChoices)) {
             this.autoChoices = autoChoices;
+
             Object enums[] = modelClass.getEnumConstants();
             if ((Boolean.class == modelClass)
                     || ((enums != null) && (enums.length <= 8))) {
-                setEditable(editor.isAutoCompletion() || autoChoices == AutoChoices.DISABLED);
-                //the call to setEditable already invokes requestChoices
+                setEditable(editor.isAutoCompletion()
+                        || (autoChoices == AutoChoices.DISABLED));
+                // the call to setEditable already invokes requestChoices
                 setMaxHistory(0);
             } else {
-            	requestChoices();
+                requestChoices();
             }
         }
     }
@@ -213,7 +215,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     public void setEditable(boolean editable) {
         if (getRenderer() == null) {
             editor.setTextMode(editable);
-            requestChoices(); //escaping works now differently
+            requestChoices(); // escaping works now differently
         }
     }
 
@@ -280,23 +282,23 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     }
 
     /** IFilterEditor method. */
-    public void setAutoCompletion(boolean enable){
-    	editor.setAutoCompletion(enable);
-    }
-    
-    /** IFilterEditor method. */
-    public boolean isAutoCompletion() {
-    	return editor.isAutoCompletion();
+    public void setAutoCompletion(boolean enable) {
+        editor.setAutoCompletion(enable);
     }
 
     /** IFilterEditor method. */
-    public void setInstantFiltering(boolean enable){
-    	editor.setInstantFiltering(enable);
+    public boolean isAutoCompletion() {
+        return editor.isAutoCompletion();
     }
-    
+
+    /** IFilterEditor method. */
+    public void setInstantFiltering(boolean enable) {
+        editor.setInstantFiltering(enable);
+    }
+
     /** IFilterEditor method. */
     public boolean isInstantFiltering() {
-    	return editor.isInstantFiltering();
+        return editor.isInstantFiltering();
     }
 
     /** IFilterEditor method. */
@@ -344,9 +346,9 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         repaint();
     }
 
-    /** Method required by the FiltersHandler to propagate filter changes */
-    public boolean isEditing(){
-    	return editor.isFocused() && isEnabled();
+    /** Method required by the FiltersHandler to propagate filter changes. */
+    public boolean isEditing() {
+        return editor.isFocused() && isEnabled();
     }
 
     /** Method invoked by the FiltersHandler to set the choices. */
@@ -365,7 +367,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         popup.addChoices(choices, editor.getEscapeParser());
     }
 
-    /** Enables / disables the editor, invoked from the filter itself */
+    /** Enables / disables the editor, invoked from the filter itself. */
     void setEditorEnabled(boolean enabled) {
         super.setEnabled(enabled);
         downButton.setEnabled(enabled);
@@ -373,18 +375,18 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         editor.setEnabled(enabled);
     }
 
-    /** Method invoked by the EditorComponent to notify a filter update */
-    void filterUpdated(RowFilter editorFilter){
-    	filter.editorFilterUpdated(editorFilter);
+    /** Method invoked by the EditorComponent to notify a filter update. */
+    void filterUpdated(RowFilter editorFilter) {
+        filter.editorFilterUpdated(editorFilter);
     }
 
-    /** Method invoked by the EditorComponent to attempt a filter update */
-    boolean attemptFilterUpdate(RowFilter editorFilter){
-    	//return true if the filter is some table rows remain visible
-    	return filter.attemptEditorFilterUpdate(editorFilter);
+    /** Method invoked by the EditorComponent to attempt a filter update. */
+    boolean attemptFilterUpdate(RowFilter editorFilter) {
+        // return true if the filter is some table rows remain visible
+        return filter.attemptEditorFilterUpdate(editorFilter);
     }
-    
-    /** Method invoked by the EditorComponent on request */
+
+    /** Method invoked by the EditorComponent on request. */
     IParser createParser() {
         return getParserModel().createParser(this);
     }
@@ -399,7 +401,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         }
     }
 
-    /** Sets the content, updating the filter -and propagating any changes */
+    /** Sets the content, updating the filter -and propagating any changes. */
     private void setEditorContent(Object content) {
         editor.setContent(content);
     }
@@ -418,7 +420,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             requestChoices();
         }
     }
-    
+
     private IParserModel getParserModel() {
         return filtersHandler.getParserModel();
     }
@@ -478,7 +480,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
                 return false;
             }
 
-            if (null == popup.selectBestMatch(editor.getContent(), false).content) {
+            if (null
+                    == popup.selectBestMatch(editor.getContent(), false).content) {
                 // select ANYTHING
                 popup.selectBestMatch("", false);
             }
@@ -514,7 +517,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), actionName);
     }
 
     /**
@@ -537,7 +541,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), actionName);
     }
 
     private void setupEndKey(JComponent component) {
@@ -550,13 +555,15 @@ public class FilterEditor extends JComponent implements IFilterEditor {
                 if (!popup.isPopupFocused() || !popup.selectLast(false)) {
                     if (e.getSource() instanceof JTextField) {
                         JTextField textField = (JTextField) e.getSource();
-                        textField.setCaretPosition(textField.getText().length());
+                        textField.setCaretPosition(textField.getText()
+                                .length());
                     }
                 }
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0), actionName);
     }
 
     private void setupEndCtrlKey(JComponent component) {
@@ -574,13 +581,16 @@ public class FilterEditor extends JComponent implements IFilterEditor {
                 if (!popup.isPopupFocused() || !popup.selectLast(true)) {
                     if (e.getSource() instanceof JTextField) {
                         JTextField textField = (JTextField) e.getSource();
-                        textField.setCaretPosition(textField.getText().length());
+                        textField.setCaretPosition(textField.getText()
+                                .length());
                     }
                 }
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_END, Event.CTRL_MASK), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_END, Event.CTRL_MASK),
+                actionName);
     }
 
     private void setupHomeCtrlKey(JComponent component) {
@@ -604,7 +614,9 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, Event.CTRL_MASK), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, Event.CTRL_MASK),
+                actionName);
     }
 
     /**
@@ -631,7 +643,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0), actionName);
     }
 
     private void setupDownPageKey(JComponent component) {
@@ -654,7 +667,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0), actionName);
     }
 
     private void setupUpPageKey(JComponent component) {
@@ -675,7 +689,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0), actionName);
     }
 
     private void setupUpCtrlKey(JComponent component) {
@@ -695,7 +710,9 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, Event.CTRL_MASK), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, Event.CTRL_MASK),
+                actionName);
     }
 
     private void setupUpKey(JComponent component) {
@@ -724,7 +741,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), actionName);
     }
 
     private void setupDownCtrlKey(JComponent component) {
@@ -749,7 +767,9 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, Event.CTRL_MASK), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, Event.CTRL_MASK),
+                actionName);
     }
 
     private void setupDownKey(JComponent component) {
@@ -774,7 +794,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             }
         };
         component.getActionMap().put(actionName, action);
-        component.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), actionName);
+        component.getInputMap(JComponent.WHEN_FOCUSED)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), actionName);
     }
 
     /**
@@ -784,8 +805,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
      */
     final class EditorFilter extends Filter {
         RowFilter delegateFilter;
-        boolean toBeConsolidated;
-        boolean reportOnConsolidation;
+        boolean   toBeConsolidated;
+        boolean   reportOnConsolidation;
 
         @Override public boolean include(RowFilter.Entry entry) {
             return (delegateFilter == null) ? true
@@ -795,60 +816,64 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         @Override public void setEnabled(boolean enable) {
             if (enable != isEnabled()) {
                 setEditorEnabled(enable);
-                delegateFilter = enable? editor.getFilter() : null;
+                delegateFilter = enable ? editor.getFilter() : null;
 
                 super.setEnabled(enable);
             }
         }
-        
-        /** Reports an update on the associated filter */
-        public void editorFilterUpdated(RowFilter filter){
+
+        /** Reports an update on the associated filter. */
+        public void editorFilterUpdated(RowFilter filter) {
             if (isEnabled()) {
-                if (filter != delegateFilter){
+                if (filter != delegateFilter) {
                     delegateFilter = filter;
-                	reportFilterUpdatedToObservers();
-                	reportOnConsolidation=false;
-                	if (editor.isFocused()){
-                		toBeConsolidated = true;
-                	} 
-                } 
+                    reportFilterUpdatedToObservers();
+                    reportOnConsolidation = false;
+                    if (editor.isFocused()) {
+                        toBeConsolidated = true;
+                    }
+                }
             }
         }
-        
+
         /**
-         * Attempts an update on a editor filter. It is only performed if
-         * the filter let pass rows (does not filter all out)
+         * Attempts an update on a editor filter. It is only performed if the
+         * filter let pass rows (does not filter all out)
          */
-        public boolean attemptEditorFilterUpdate(RowFilter filter){
+        public boolean attemptEditorFilterUpdate(RowFilter filter) {
             delegateFilter = filter;
-        	boolean ret = filtersHandler.applyEditorFilter(this);
-        	if (ret){
-        		toBeConsolidated = true;
-        		reportOnConsolidation = false;
-        	} else {
-        		reportOnConsolidation = true;
-        	}
-        	return ret;
+
+            boolean ret = filtersHandler.applyEditorFilter(this);
+            if (ret) {
+                toBeConsolidated = true;
+                reportOnConsolidation = false;
+            } else {
+                reportOnConsolidation = true;
+            }
+
+            return ret;
         }
-        
-        public void consolidateFilter(){
-        	if (isEnabled()){
-        		//next call can imply a call to editorFilterUpdated if
-        		//there are changes on the filter
-    			editor.consolidateFilter();
-    			if (reportOnConsolidation){
-    				reportOnConsolidation=false;
-    				reportFilterUpdatedToObservers();
-    			}
-        		if (toBeConsolidated){
-            		toBeConsolidated = false;
-            		//only add valid content creating filters that do not filter
-            		//all the content out
+
+        public void consolidateFilter() {
+            if (isEnabled()) {
+                // next call can imply a call to editorFilterUpdated if
+                // there are changes on the filter
+                editor.consolidateFilter();
+                if (reportOnConsolidation) {
+                    reportOnConsolidation = false;
+                    reportFilterUpdatedToObservers();
+                }
+
+                if (toBeConsolidated) {
+                    toBeConsolidated = false;
+
+                    // only add valid content creating filters that do not
+                    // filter all the content out
                     if (editor.isValidContent()) {
                         popup.addHistory(editor.getContent());
                     }
-        		}
-        	}
+                }
+            }
         }
     }
 

@@ -90,20 +90,24 @@ public abstract class CustomChoice {
                     if (o == null) {
                         return true;
                     }
-                    if (editor.getRenderer()!=null){
+
+                    if (editor.getRenderer() != null) {
                         return false;
                     }
+
                     Format format = editor.getFormat();
-                    String s = format==null? o.toString() : format.format(o);
+                    String s = (format == null) ? o.toString()
+                                                : format.format(o);
+
                     return (s == null) || (s.trim().length() == 0);
                 }
             };
         }
     };
 
-    private Icon icon;
+    private Icon   icon;
     private String str;
-    private int precedence;
+    private int    precedence;
 
     /** Full constructor. */
     public CustomChoice(String representation, Icon icon, int precedence) {
@@ -186,12 +190,12 @@ public abstract class CustomChoice {
                 use = UIManager.getLookAndFeel().getDisabledIcon(c, icon);
             }
 
-            FontMetrics metrics = g.getFontMetrics(editor.getLook().
-                    getCustomChoiceDecorator().getFont(
-                             this, editor, isSelected));
-            int x = Math.max(4 + metrics.stringWidth(toString()),
+            FontMetrics metrics = g.getFontMetrics(editor.getLook()
+                        .getCustomChoiceDecorator().getFont(this, editor,
+                        isSelected));
+            int         x = Math.max(4 + metrics.stringWidth(toString()),
                     (c.getWidth() - use.getIconWidth()) / 2);
-            int y = (c.getHeight() - use.getIconHeight()) / 2;
+            int         y = (c.getHeight() - use.getIconHeight()) / 2;
             use.paintIcon(c, g, x, y);
         }
     }

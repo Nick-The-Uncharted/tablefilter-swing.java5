@@ -26,8 +26,10 @@
 package net.coderazzi.filters;
 
 import java.beans.PropertyChangeListener;
+
 import java.text.Format;
 import java.text.ParseException;
+
 import java.util.Comparator;
 
 import javax.swing.table.TableModel;
@@ -42,83 +44,68 @@ import net.coderazzi.filters.artifacts.RowFilter;
  */
 public interface IFilterTextParser {
 
-	/**
-	 * Associates a {@link TableModel} to the parser.<br>
-	 * The parser can use it to extract the type associated to a given column, 
-	 * or to define variables-the name of the column-. <br>
-	 * The usage is specific to the final implementation of this interface.
-	 */
-    public void setTableModel(TableModel model);
+    /**
+     * Associates a {@link TableModel} to the parser.<br>
+     * The parser can use it to extract the type associated to a given column,
+     * or to define variables-the name of the column-.<br>
+     * The usage is specific to the final implementation of this interface.
+     */
+    void setTableModel(TableModel model);
 
     /**
      * Parses the text, corresponding to a column in the table model<br>
      * It returns a filter that can be applied to the table sorter.
-     * @param expression the text to parse
-     * @param modelPosition the position on the table model. 
-     */
-    public RowFilter parseText(String expression,
-                               int modelPosition) throws ParseException;
-
-    /**
-     * Ignores case -if the operator is string based-
-     */
-    public void setIgnoreCase(boolean ignore);
-
-    /**
-     * Returns true if it ignores case
-     */
-    public boolean isIgnoreCase();
-
-    /**
-     * Defines the default operator when the user specifies none
-     */
-    public void setDefaultOperator(String s);
-
-    /**
-     * Returns the default operand
-     */
-    public String getDefaultOperator();
-
-    /**
-     * <p>Sets a specific comparator for a given class, that should override 
-     * the default compare algorithm for the given class.</p>
      *
-     * <p>If the class is not {@link java.lang.Comparable}, this method should 
-     * be invoked to support any comparison operator, or any operation will 
-     * be invoked on the string representation of the instance.</p>
+     * @param  expression     the text to parse
+     * @param  modelPosition  the position on the table model.
      */
-    public void setComparator(Class<?> c,
-                              Comparator<?> cmp);
+    RowFilter parseText(String expression, int modelPosition)
+                 throws ParseException;
+
+    /** Ignores case -if the operator is string based- */
+    void setIgnoreCase(boolean ignore);
+
+    /** Returns true if it ignores case. */
+    boolean isIgnoreCase();
+
+    /** Defines the default operator when the user specifies none. */
+    void setDefaultOperator(String s);
+
+    /** Returns the default operand. */
+    String getDefaultOperator();
 
     /**
-     * Returns the {@link Comparator} provided for the given class
+     * <p>Sets a specific comparator for a given class, that should override the
+     * default compare algorithm for the given class.</p>
+     *
+     * <p>If the class is not {@link java.lang.Comparable}, this method should
+     * be invoked to support any comparison operator, or any operation will be
+     * invoked on the string representation of the instance.</p>
      */
-    public Comparator<?> getComparator(Class<?> c);
+    void setComparator(Class<?> c, Comparator<?> cmp);
+
+    /** Returns the {@link Comparator} provided for the given class. */
+    Comparator<?> getComparator(Class<?> c);
 
     /**
-     * Provides the {@link Format} to build non basic types. <br>
-     * If a table model defines some column without specified format, only 
+     * Provides the {@link Format} to build non basic types.<br>
+     * If a table model defines some column without specified format, only
      * string operations will apply.<br>
-     * Please note that every IFilterTextParser can define its own set of 
+     * Please note that every IFilterTextParser can define its own set of
      * predefined formats
      */
-    public void setFormat(Class<?> c,
-                          Format format);
+    void setFormat(Class<?> c, Format format);
+
+    /** Returns the {@link Format} for a given class. */
+    Format getFormat(Class<?> c);
 
     /**
-     * Returns the {@link Format} for a given class
-     */
-    public Format getFormat(Class<?> c);
-
-    /**
-     * Adds a {@link PropertyChangeListener}. <br>
+     * Adds a {@link PropertyChangeListener}.<br>
      * Any property change will be transmitted as an event
      */
-	public void addPropertyChangeListener(PropertyChangeListener listener);
+    void addPropertyChangeListener(PropertyChangeListener listener);
 
-    /**
-     * Removes an existing {@link PropertyChangeListener}
-     */
-	public void removePropertyChangeListener(PropertyChangeListener listener);
+    /** Removes an existing {@link PropertyChangeListener}. */
+    void removePropertyChangeListener(PropertyChangeListener listener);
 
 }

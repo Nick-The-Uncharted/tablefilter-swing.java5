@@ -75,12 +75,13 @@ public class FilterSettings {
     /** Header's error color. */
     public static Color errorColor = getColor("ErrorColor", null);
 
-    /** 
+    /**
      * Setting to add / decrease height to the filter row.<br>
-     * This setting could be specifically required on specific Look And Feels 
+     * This setting could be specifically required on specific Look And Feels
      * -Substance seems to require additional height.<br>
      */
-    public static int filterRowHeightDelta = getInteger("FilterRowHeightDelta", 0);
+    public static int filterRowHeightDelta = getInteger("FilterRowHeightDelta",
+            0);
 
     /** Header's font. */
     public static Font font;
@@ -147,7 +148,7 @@ public class FilterSettings {
             return parserModelClass.newInstance();
         } catch (Exception ex) {
             throw new RuntimeException("Error creating parser model of type "
-                + parserModelClass, ex);
+                    + parserModelClass, ex);
         }
     }
 
@@ -157,7 +158,7 @@ public class FilterSettings {
             return customChoiceDecoratorClass.newInstance();
         } catch (Exception ex) {
             throw new RuntimeException("Error creating decorator of type "
-                + customChoiceDecoratorClass, ex);
+                    + customChoiceDecoratorClass, ex);
         }
     }
 
@@ -187,7 +188,7 @@ public class FilterSettings {
                     "Error finding filter model of class " + cl, cne);
             } catch (ClassCastException cce) {
                 throw new RuntimeException("Filter model of class " + cl
-                    + " is not a valid IParserModel class");
+                        + " is not a valid IParserModel class");
             }
         }
 
@@ -204,7 +205,7 @@ public class FilterSettings {
             } catch (ClassCastException cce) {
                 throw new RuntimeException(
                     "CustomChoiceDecorator model of class " + cl
-                    + " is not a valid CustomChoiceDecorator class");
+                        + " is not a valid CustomChoiceDecorator class");
             }
         }
     }

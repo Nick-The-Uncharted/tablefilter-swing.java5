@@ -103,11 +103,11 @@ public class TableSorter extends AbstractTableModel {
     private Row viewToModel[];
     private int modelToView[];
 
-    private JTableHeader tableHeader;
-    private MouseListener mouseListener;
+    private JTableHeader       tableHeader;
+    private MouseListener      mouseListener;
     private TableModelListener tableModelListener;
-    private Map columnComparators = new HashMap();
-    private List sortingColumns = new ArrayList();
+    private Map                columnComparators = new HashMap();
+    private List               sortingColumns = new ArrayList();
 
     public TableSorter() {
         this.mouseListener = new MouseHandler();
@@ -249,7 +249,7 @@ public class TableSorter extends AbstractTableModel {
     }
 
     protected Comparator getComparator(int column) {
-        Class columnType = tableModel.getColumnClass(column);
+        Class      columnType = tableModel.getColumnClass(column);
         Comparator comparator = (Comparator) columnComparators.get(columnType);
 
         if (comparator != null) {
@@ -346,9 +346,9 @@ public class TableSorter extends AbstractTableModel {
 
             for (Iterator it = sortingColumns.iterator(); it.hasNext();) {
                 Directive directive = (Directive) it.next();
-                int column = directive.column;
-                Object o1 = tableModel.getValueAt(row1, column);
-                Object o2 = tableModel.getValueAt(row2, column);
+                int       column = directive.column;
+                Object    o1 = tableModel.getValueAt(row1, column);
+                Object    o2 = tableModel.getValueAt(row2, column);
 
                 int comparison = 0;
 
@@ -398,22 +398,23 @@ public class TableSorter extends AbstractTableModel {
             // the following conditions apply:
             //
             // a) all the changes are on one row (e.getFirstRow() ==
-            // e.getLastRow()) and, b) all the changes are in one column (column
-            // != TableModelEvent.ALL_COLUMNS) and, c) we are not sorting on
-            // that column (getSortingStatus(column) == NOT_SORTED) and, d) a
-            // reverse lookup will not trigger a sort (modelToView != null)
+            // e.getLastRow()) and, b) all the changes are in one column
+            // (column != TableModelEvent.ALL_COLUMNS) and, c) we are not
+            // sorting on that column (getSortingStatus(column) ==
+            // NOT_SORTED) and, d) a reverse lookup will not trigger a sort
+            // (modelToView != null)
             //
-            // Note: INSERT and DELETE events fail this test as they have column ==
-            // ALL_COLUMNS.
+            // Note: INSERT and DELETE events fail this test as they have column
+            // == ALL_COLUMNS.
             //
-            // The last check, for (modelToView != null) is to see if modelToView
-            // is already allocated. If we don't do this check; sorting can
-            // become a performance bottleneck for applications where cells
-            // change rapidly in different parts of the table. If cells change
-            // alternately in the sorting column and then outside of it this
-            // class can end up re-sorting on alternate cell updates - which can
-            // be a performance problem for large tables. The last clause avoids
-            // this problem.
+            // The last check, for (modelToView != null) is to see if
+            // modelToView is already allocated. If we don't do this check;
+            // sorting can become a performance bottleneck for applications
+            // where cells change rapidly in different parts of the table. If
+            // cells change alternately in the sorting column and then
+            // outside of it this class can end up re-sorting on alternate
+            // cell updates - which can be a performance problem for large
+            // tables. The last clause avoids this problem.
             int column = e.getColumn();
 
             if ((e.getFirstRow() == e.getLastRow())
@@ -441,10 +442,12 @@ public class TableSorter extends AbstractTableModel {
 
     private class MouseHandler extends MouseAdapter {
         @Override public void mouseClicked(MouseEvent e) {
-            JTableHeader h = (JTableHeader) e.getSource();
+            JTableHeader     h = (JTableHeader) e.getSource();
             TableColumnModel columnModel = h.getColumnModel();
-            int viewColumn = columnModel.getColumnIndexAtX(e.getX());
-            int column = columnModel.getColumn(viewColumn).getModelIndex();
+            int              viewColumn = columnModel.getColumnIndexAtX(
+                    e.getX());
+            int              column = columnModel.getColumn(viewColumn)
+                    .getModelIndex();
 
             if (column != -1) {
                 int status = getSortingStatus(column);
@@ -466,8 +469,8 @@ public class TableSorter extends AbstractTableModel {
 
     private static class Arrow implements Icon {
         private boolean descending;
-        private int size;
-        private int priority;
+        private int     size;
+        private int     priority;
 
         public Arrow(boolean descending, int size, int priority) {
             this.descending = descending;

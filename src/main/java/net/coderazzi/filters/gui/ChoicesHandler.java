@@ -41,9 +41,9 @@ import net.coderazzi.filters.gui.editor.FilterEditor;
  * Interface implemented by the classes that handle the choices on each {@link
  * FilterEditor}.
  */
-abstract class ChoicesHandler implements TableModelListener{
+abstract class ChoicesHandler implements TableModelListener {
 
-    private TableModel listenedModel;
+    private TableModel       listenedModel;
     protected FiltersHandler handler;
 
     protected ChoicesHandler(FiltersHandler handler) {
@@ -63,12 +63,15 @@ abstract class ChoicesHandler implements TableModelListener{
     /** Reports a {@link FilterEditor} update. */
     public abstract void editorUpdated(FilterEditor editor);
 
-    /** 
+    /**
      * Reports a {@link IFilter} update.
-     * @param retInfoRequired set to true if the return value is required
-     * @return true if the filter let pass any row 
+     *
+     * @param   retInfoRequired  set to true if the return value is required
+     *
+     * @return  true if the filter let pass any row
      */
-    public abstract boolean filterUpdated(IFilter filter, boolean retInfoRequired);
+    public abstract boolean filterUpdated(IFilter filter,
+                                          boolean retInfoRequired);
 
     /**
      * Reports the beginning or end of {@link IFilter} add/remove operations.
@@ -80,7 +83,7 @@ abstract class ChoicesHandler implements TableModelListener{
 
     /** Call triggered after all filters become disabled. */
     public abstract void allFiltersDisabled();
-    
+
     /** Reports a table update. */
     protected abstract void tableUpdated(TableModel model,
                                          int        eventType,
@@ -92,11 +95,12 @@ abstract class ChoicesHandler implements TableModelListener{
         int firstRow = e.getFirstRow();
         if (firstRow != TableModelEvent.HEADER_ROW) {
             TableModel model = (TableModel) e.getSource();
-            int lastRow = Math.min(model.getRowCount() - 1, e.getLastRow());
+            int        lastRow = Math.min(model.getRowCount() - 1,
+                    e.getLastRow());
             tableUpdated(model, e.getType(), firstRow, lastRow, e.getColumn());
         }
     }
-    
+
     /**
      * Sets whether to send table model events to the {@link ChoicesHandler}.
      */
@@ -122,14 +126,14 @@ abstract class ChoicesHandler implements TableModelListener{
     }
 
     /**
-     * Basic RowFilter.Entry instance, used internally to handle the
-     * RowFilter default filtering.
+     * Basic RowFilter.Entry instance, used internally to handle the RowFilter
+     * default filtering.
      */
     static protected class RowEntry extends RowFilter.Entry {
         private TableModel model;
-        private int count;
-        private Format formatters[];
-        public int row;
+        private int        count;
+        private Format     formatters[];
+        public int         row;
 
         public RowEntry(TableModel model, FilterEditor editors[]) {
             this.model = model;
