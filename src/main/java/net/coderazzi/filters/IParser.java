@@ -75,7 +75,7 @@ public interface IParser {
     /** Helper class used on {@link IParser#parseInstantText(String)}. */
     public class InstantFilter {
         public RowFilter filter;
-        public String    expression;
+        public String expression;
     }
 
 }

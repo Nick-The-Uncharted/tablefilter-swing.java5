@@ -43,7 +43,7 @@ import net.coderazzi.filters.gui.editor.FilterEditor;
  */
 abstract class ChoicesHandler implements TableModelListener {
 
-    private TableModel       listenedModel;
+    private TableModel listenedModel;
     protected FiltersHandler handler;
 
     protected ChoicesHandler(FiltersHandler handler) {
@@ -95,8 +95,7 @@ abstract class ChoicesHandler implements TableModelListener {
         int firstRow = e.getFirstRow();
         if (firstRow != TableModelEvent.HEADER_ROW) {
             TableModel model = (TableModel) e.getSource();
-            int        lastRow = Math.min(model.getRowCount() - 1,
-                    e.getLastRow());
+            int lastRow = Math.min(model.getRowCount() - 1, e.getLastRow());
             tableUpdated(model, e.getType(), firstRow, lastRow, e.getColumn());
         }
     }
@@ -131,9 +130,9 @@ abstract class ChoicesHandler implements TableModelListener {
      */
     static protected class RowEntry extends RowFilter.Entry {
         private TableModel model;
-        private int        count;
-        private Format     formatters[];
-        public int         row;
+        private int count;
+        private Format formatters[];
+        public int row;
 
         public RowEntry(TableModel model, FilterEditor editors[]) {
             this.model = model;

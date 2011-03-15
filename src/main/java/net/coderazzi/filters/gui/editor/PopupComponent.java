@@ -63,11 +63,11 @@ import net.coderazzi.filters.gui.Look;
  */
 abstract class PopupComponent implements PopupMenuListener {
 
-    private JPopupMenu             popup;
+    private JPopupMenu popup;
     private FilterListCellRenderer listRenderer;
-    private JScrollPane            choicesScrollPane;
-    private JScrollPane            historyScrollPane;
-    private JSeparator             separator;
+    private JScrollPane choicesScrollPane;
+    private JScrollPane historyScrollPane;
+    private JSeparator separator;
 
     private ChoicesListModel choicesModel;
     private HistoryListModel historyModel;

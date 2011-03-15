@@ -63,10 +63,9 @@ public class MenuMaleCustomChoices extends AbstractMenuCheckBoxAction {
                 @Override public RowFilter getFilter(IFilterEditor fe) {
                     return new RowFilter() {
                         @Override public boolean include(Entry entry) {
-                            int            row = (Integer)
-                                entry.getIdentifier();
+                            int row = (Integer) entry.getIdentifier();
                             TestTableModel tm = main.getTableModel();
-                            TestData       td = tm.getRow(row);
+                            TestData td = tm.getRow(row);
 
                             return td.male || tm.isModified(td);
                         }
@@ -79,10 +78,9 @@ public class MenuMaleCustomChoices extends AbstractMenuCheckBoxAction {
                 @Override public RowFilter getFilter(IFilterEditor fe) {
                     return new RowFilter() {
                         @Override public boolean include(Entry entry) {
-                            int            row = (Integer)
-                                entry.getIdentifier();
+                            int row = (Integer) entry.getIdentifier();
                             TestTableModel tm = main.getTableModel();
-                            TestData       td = tm.getRow(row);
+                            TestData td = tm.getRow(row);
 
                             return !td.male || tm.isModified(td);
                         }

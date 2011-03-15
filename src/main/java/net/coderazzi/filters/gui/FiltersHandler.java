@@ -165,7 +165,7 @@ public class FiltersHandler extends AndFilter
      * IParserModel}.
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        Class   target;
+        Class target;
         boolean formatChange = false;
         if (evt.getPropertyName() == IParserModel.IGNORE_CASE_PROPERTY) {
             target = null;

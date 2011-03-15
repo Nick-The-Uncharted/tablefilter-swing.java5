@@ -42,9 +42,9 @@ public class MaleRenderer implements TableCellRenderer {
 
     private static final long serialVersionUID = 8042527267257156699L;
 
-    private ActionHandler     main;
-    private TableSorter       tableSorter;
-    private Border            redBorder;
+    private ActionHandler main;
+    private TableSorter tableSorter;
+    private Border redBorder;
     private TableCellRenderer delegate;
 
     public MaleRenderer(ActionHandler main, TableSorter tableSorter) {
@@ -60,7 +60,7 @@ public class MaleRenderer implements TableCellRenderer {
                                                    boolean hasFocus,
                                                    int     row,
                                                    int     column) {
-        JComponent     c = (JComponent) delegate.getTableCellRendererComponent(
+        JComponent c = (JComponent) delegate.getTableCellRendererComponent(
                 table, value, isSelected, hasFocus, row, column);
         TestTableModel tm = main.getTableModel();
         // >>special difference with Java 6

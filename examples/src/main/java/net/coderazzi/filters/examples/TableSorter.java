@@ -103,11 +103,11 @@ public class TableSorter extends AbstractTableModel {
     private Row viewToModel[];
     private int modelToView[];
 
-    private JTableHeader       tableHeader;
-    private MouseListener      mouseListener;
+    private JTableHeader tableHeader;
+    private MouseListener mouseListener;
     private TableModelListener tableModelListener;
-    private Map                columnComparators = new HashMap();
-    private List               sortingColumns = new ArrayList();
+    private Map columnComparators = new HashMap();
+    private List sortingColumns = new ArrayList();
 
     public TableSorter() {
         this.mouseListener = new MouseHandler();
@@ -249,7 +249,7 @@ public class TableSorter extends AbstractTableModel {
     }
 
     protected Comparator getComparator(int column) {
-        Class      columnType = tableModel.getColumnClass(column);
+        Class columnType = tableModel.getColumnClass(column);
         Comparator comparator = (Comparator) columnComparators.get(columnType);
 
         if (comparator != null) {
@@ -346,9 +346,9 @@ public class TableSorter extends AbstractTableModel {
 
             for (Iterator it = sortingColumns.iterator(); it.hasNext();) {
                 Directive directive = (Directive) it.next();
-                int       column = directive.column;
-                Object    o1 = tableModel.getValueAt(row1, column);
-                Object    o2 = tableModel.getValueAt(row2, column);
+                int column = directive.column;
+                Object o1 = tableModel.getValueAt(row1, column);
+                Object o2 = tableModel.getValueAt(row2, column);
 
                 int comparison = 0;
 
@@ -442,12 +442,10 @@ public class TableSorter extends AbstractTableModel {
 
     private class MouseHandler extends MouseAdapter {
         @Override public void mouseClicked(MouseEvent e) {
-            JTableHeader     h = (JTableHeader) e.getSource();
+            JTableHeader h = (JTableHeader) e.getSource();
             TableColumnModel columnModel = h.getColumnModel();
-            int              viewColumn = columnModel.getColumnIndexAtX(
-                    e.getX());
-            int              column = columnModel.getColumn(viewColumn)
-                    .getModelIndex();
+            int viewColumn = columnModel.getColumnIndexAtX(e.getX());
+            int column = columnModel.getColumn(viewColumn).getModelIndex();
 
             if (column != -1) {
                 int status = getSortingStatus(column);
@@ -469,8 +467,8 @@ public class TableSorter extends AbstractTableModel {
 
     private static class Arrow implements Icon {
         private boolean descending;
-        private int     size;
-        private int     priority;
+        private int size;
+        private int priority;
 
         public Arrow(boolean descending, int size, int priority) {
             this.descending = descending;

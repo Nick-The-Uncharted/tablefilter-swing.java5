@@ -85,20 +85,20 @@ import net.coderazzi.filters.parser.DateComparator;
 public class FilterEditor extends JComponent implements IFilterEditor {
 
     private static final long serialVersionUID = 6908400421021655278L;
-    private EditorBorder      border = new EditorBorder();
+    private EditorBorder border = new EditorBorder();
     private Set<CustomChoice> customChoices;
-    private AutoChoices       autoChoices;
-    private Format            format;
-    private Comparator        comparator;
-    private boolean           ignoreCase;
-    private Class             modelClass;
+    private AutoChoices autoChoices;
+    private Format format;
+    private Comparator comparator;
+    private boolean ignoreCase;
+    private Class modelClass;
 
-    FiltersHandler    filtersHandler;
+    FiltersHandler filtersHandler;
     FilterArrowButton downButton = new FilterArrowButton();
-    EditorFilter      filter = new EditorFilter();
-    EditorComponent   editor;
-    PopupComponent    popup;
-    int               modelIndex;
+    EditorFilter filter = new EditorFilter();
+    EditorComponent editor;
+    PopupComponent popup;
+    int modelIndex;
 
     public FilterEditor(FiltersHandler filtersHandler,
                         int            modelIndex,
@@ -805,8 +805,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
      */
     final class EditorFilter extends Filter {
         RowFilter delegateFilter;
-        boolean   toBeConsolidated;
-        boolean   reportOnConsolidation;
+        boolean toBeConsolidated;
+        boolean reportOnConsolidation;
 
         @Override public boolean include(RowFilter.Entry entry) {
             return (delegateFilter == null) ? true

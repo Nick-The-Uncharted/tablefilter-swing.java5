@@ -70,11 +70,11 @@ public class EditorComponent extends JTextField {
     private static final long serialVersionUID = -2196080442586435546L;
 
     private Controller controller;
-    private boolean    focus;
-    boolean            instantFilteringEnabled;
-    boolean            autoCompletionEnabled;
-    FilterEditor       filterEditor;
-    PopupComponent     popupComponent;
+    private boolean focus;
+    boolean instantFilteringEnabled;
+    boolean autoCompletionEnabled;
+    FilterEditor filterEditor;
+    PopupComponent popupComponent;
 
     public EditorComponent(FilterEditor   editor,
                            PopupComponent popupComponent) {
@@ -284,10 +284,10 @@ public class EditorComponent extends JTextField {
     private class RenderedController extends MouseAdapter
         implements Controller {
 
-        private Object           content = CustomChoice.MATCH_ALL;
+        private Object content = CustomChoice.MATCH_ALL;
         private CellRendererPane painter = new CellRendererPane();
-        RowFilter                filter;
-        Object                   cachedContent = content;
+        RowFilter filter;
+        Object cachedContent = content;
 
         RenderedController() {
             addMouseListener(this);
@@ -380,8 +380,8 @@ public class EditorComponent extends JTextField {
         private Object content;
         // the filter associated to the content variable
         private RowFilter filter;
-        private boolean   error;
-        private boolean   useCustomDecoration;
+        private boolean error;
+        private boolean useCustomDecoration;
 
         TextController() {
             setEditable(true);
@@ -415,7 +415,7 @@ public class EditorComponent extends JTextField {
         }
 
         public void setContent(Object content) {
-            String      text;
+            String text;
             ChoiceMatch match = new ChoiceMatch();
             match.exact = true;
             if (content instanceof CustomChoice) {
@@ -477,7 +477,7 @@ public class EditorComponent extends JTextField {
             CustomChoice cc =
                 (useCustomDecoration && (content instanceof CustomChoice))
                 ? (CustomChoice) content : null;
-            Look         look = prepareComponentLook(cc);
+            Look look = prepareComponentLook(cc);
             if (isEnabled() && error) {
                 Color foreground = look.getErrorForeground();
                 if (foreground != getForeground()) {
@@ -574,7 +574,7 @@ public class EditorComponent extends JTextField {
                                     ChoiceMatch match,
                                     boolean     userUpdate) {
             RowFilter currentFilter = filter;
-            boolean   error = false;
+            boolean error = false;
             if (text == null) {
                 match = null;
                 text = getText();
@@ -830,13 +830,12 @@ public class EditorComponent extends JTextField {
                                           String       text,
                                           AttributeSet attrs)
                                    throws BadLocationException {
-                String      buffer = getText();
-                String      newContentBegin = buffer.substring(0, offset)
-                        + text;
-                String      newContent = newContentBegin
+                String buffer = getText();
+                String newContentBegin = buffer.substring(0, offset) + text;
+                String newContent = newContentBegin
                         + buffer.substring(offset + length);
                 ChoiceMatch match = getBestMatch(newContent);
-                String      proposal = null;
+                String proposal = null;
                 if (match.exact) {
                     proposal = match.content.toString();
                 } else {
@@ -887,10 +886,10 @@ public class EditorComponent extends JTextField {
                                          int          offset,
                                          int          length)
                                   throws BadLocationException {
-                int         caret = getCaret().getDot();
-                int         mark = getCaret().getMark();
-                String      buffer = getText();
-                String      newContent = buffer.substring(0, offset)
+                int caret = getCaret().getDot();
+                int mark = getCaret().getMark();
+                String buffer = getText();
+                String newContent = buffer.substring(0, offset)
                         + buffer.substring(offset + length);
                 ChoiceMatch match = getBestMatch(newContent);
                 if (match.content == null) {

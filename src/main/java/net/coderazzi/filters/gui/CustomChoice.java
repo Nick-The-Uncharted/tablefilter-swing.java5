@@ -105,9 +105,9 @@ public abstract class CustomChoice {
         }
     };
 
-    private Icon   icon;
+    private Icon icon;
     private String str;
-    private int    precedence;
+    private int precedence;
 
     /** Full constructor. */
     public CustomChoice(String representation, Icon icon, int precedence) {
@@ -193,9 +193,9 @@ public abstract class CustomChoice {
             FontMetrics metrics = g.getFontMetrics(editor.getLook()
                         .getCustomChoiceDecorator().getFont(this, editor,
                         isSelected));
-            int         x = Math.max(4 + metrics.stringWidth(toString()),
+            int x = Math.max(4 + metrics.stringWidth(toString()),
                     (c.getWidth() - use.getIconWidth()) / 2);
-            int         y = (c.getHeight() - use.getIconHeight()) / 2;
+            int y = (c.getHeight() - use.getIconHeight()) / 2;
             use.paintIcon(c, g, x, y);
         }
     }

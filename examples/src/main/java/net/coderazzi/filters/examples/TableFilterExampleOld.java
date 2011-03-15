@@ -104,18 +104,18 @@ public class TableFilterExampleOld extends JFrame {
     private static final String MAX_HISTORY_LENGTH = "max history length";
     private static final String USE_TABLE_RENDERER = "use table renderer";
 
-    TestTableModel    tableModel;
-    JTable            table;
-    JPanel            tablePanel;
-    JPanel            filterHeaderPanel;
+    TestTableModel tableModel;
+    JTable table;
+    JPanel tablePanel;
+    JPanel filterHeaderPanel;
     TableFilterHeader filterHeader;
-    TableSorter       tableSorter; // Java 5 change
-    JMenu             filtersMenu;
+    TableSorter tableSorter; // Java 5 change
+    JMenu filtersMenu;
     JCheckBoxMenuItem allEnabled;
     JCheckBoxMenuItem countrySpecialSorter;
     JCheckBoxMenuItem enableUserFilter;
-    IFilter           userFilter;
-    boolean           useMaleCustomChoices;
+    IFilter userFilter;
+    boolean useMaleCustomChoices;
 
     public TableFilterExampleOld() {
         super("Table Filter Example / Java 5");
@@ -437,10 +437,10 @@ public class TableFilterExampleOld extends JFrame {
 
     private JMenu createAutoChoicesMenu(AutoChoices          preselected,
                                         final AutoChoicesSet iface) {
-        JMenu       ret = new JMenu(AUTO_CHOICES);
+        JMenu ret = new JMenu(AUTO_CHOICES);
         ButtonGroup group = new ButtonGroup();
         for (AutoChoices ao : AutoChoices.values()) {
-            final AutoChoices    set = ao;
+            final AutoChoices set = ao;
             JRadioButtonMenuItem item = new JRadioButtonMenuItem(
                     new AbstractAction(ao.toString().toLowerCase()) {
                         public void actionPerformed(ActionEvent e) {
@@ -459,11 +459,11 @@ public class TableFilterExampleOld extends JFrame {
     }
 
     private JMenu createlLookAndFeelMenu() {
-        JMenu       ret = new JMenu("Look And Feel");
+        JMenu ret = new JMenu("Look And Feel");
         ButtonGroup group = new ButtonGroup();
         LookAndFeel now = UIManager.getLookAndFeel();
         for (LookAndFeelInfo lfi : UIManager.getInstalledLookAndFeels()) {
-            final String         classname = lfi.getClassName();
+            final String classname = lfi.getClassName();
             JRadioButtonMenuItem item = new JRadioButtonMenuItem(
                     new AbstractAction(lfi.getName()) {
                         public void actionPerformed(ActionEvent e) {
@@ -537,7 +537,7 @@ public class TableFilterExampleOld extends JFrame {
                         setPosition(Position.NONE);
                     }
                 });
-        ButtonGroup          group = new ButtonGroup();
+        ButtonGroup group = new ButtonGroup();
         group.add(top);
         group.add(inline);
         group.add(manual);
@@ -734,7 +734,7 @@ public class TableFilterExampleOld extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     JCheckBoxMenuItem source = (JCheckBoxMenuItem)
                         e.getSource();
-                    boolean           ignoreCase = source.isSelected();
+                    boolean ignoreCase = source.isSelected();
                     editor.setIgnoreCase(ignoreCase);
                 }
             });
@@ -795,7 +795,7 @@ public class TableFilterExampleOld extends JFrame {
         menu.add(new JMenuItem(new AbstractAction("Remove this column") {
                     public void actionPerformed(ActionEvent e) {
                         TableColumnModel model = table.getColumnModel();
-                        TableColumn      tc = model.getColumn(
+                        TableColumn tc = model.getColumn(
                                 model.getColumnIndex(name));
                         model.removeColumn(tc);
                         createFilterColumnRecovery(tc);
@@ -805,7 +805,7 @@ public class TableFilterExampleOld extends JFrame {
 
     void createFilterColumnRecovery(final TableColumn tc) {
         final String title = "Recover column " + (String) tc.getHeaderValue();
-        JMenuItem    item = new JMenuItem(new AbstractAction(title) {
+        JMenuItem item = new JMenuItem(new AbstractAction(title) {
                     public void actionPerformed(ActionEvent e) {
                         table.getColumnModel().addColumn(tc);
                         getMenu(filtersMenu, title, true);
@@ -828,7 +828,7 @@ public class TableFilterExampleOld extends JFrame {
 
     void updateFiltersInfo() {
         TableColumnModel model = table.getColumnModel();
-        int              n = model.getColumnCount();
+        int n = model.getColumnCount();
         while (n-- > 0) {
             TableColumn tc = model.getColumn(n);
             updateFilter(filterHeader.getFilterEditor(tc.getModelIndex()),
@@ -852,8 +852,7 @@ public class TableFilterExampleOld extends JFrame {
                 editor.getAutoChoices().toString().toLowerCase(), false))
             .setSelected(true);
 
-        JMenu                historyMenu = (JMenu) getMenu(menu,
-                MAX_HISTORY_LENGTH, false);
+        JMenu historyMenu = (JMenu) getMenu(menu, MAX_HISTORY_LENGTH, false);
         JRadioButtonMenuItem item = ((JRadioButtonMenuItem) getMenu(historyMenu,
                     String.valueOf(editor.getMaxHistory()), false));
         if (item != null) {
@@ -885,9 +884,9 @@ public class TableFilterExampleOld extends JFrame {
     }
 
     private JMenu createFontSizeMenu() {
-        int         RELATIVE_FONT_SIZES[] = { -2, -1, 0, 1, 2, 4, 8, 16 };
-        int         size = filterHeader.getFont().getSize();
-        JMenu       ret = new JMenu("font size");
+        int RELATIVE_FONT_SIZES[] = { -2, -1, 0, 1, 2, 4, 8, 16 };
+        int size = filterHeader.getFont().getSize();
+        JMenu ret = new JMenu("font size");
         ButtonGroup group = new ButtonGroup();
         for (int i : RELATIVE_FONT_SIZES) {
             JRadioButtonMenuItem item = createFontSizeMenuItem(size + i);
@@ -912,9 +911,9 @@ public class TableFilterExampleOld extends JFrame {
     }
 
     private JMenu createRowSizeMenu() {
-        int         RELATIVE_SIZES[] = { -2, 0, 4, 10, 20, 40 };
-        int         size = filterHeader.getRowHeightDelta();
-        JMenu       ret = new JMenu("row height delta");
+        int RELATIVE_SIZES[] = { -2, 0, 4, 10, 20, 40 };
+        int size = filterHeader.getRowHeightDelta();
+        JMenu ret = new JMenu("row height delta");
         ButtonGroup group = new ButtonGroup();
         for (int i : RELATIVE_SIZES) {
             JRadioButtonMenuItem item = createRowSizeMenuItem(i);
@@ -938,7 +937,7 @@ public class TableFilterExampleOld extends JFrame {
     }
 
     private JMenu createMaxRowsMenu() {
-        JMenu       ret = new JMenu("max visible rows on popup");
+        JMenu ret = new JMenu("max visible rows on popup");
         ButtonGroup group = new ButtonGroup();
         for (int i = 4; i < 16; i++) {
             JRadioButtonMenuItem item = createMaxRowsMenuItem(i);
@@ -963,7 +962,7 @@ public class TableFilterExampleOld extends JFrame {
     }
 
     private JMenu createMaxHistoryMenu(IFilterEditor editor) {
-        JMenu       history = new JMenu(MAX_HISTORY_LENGTH);
+        JMenu history = new JMenu(MAX_HISTORY_LENGTH);
         ButtonGroup max = new ButtonGroup();
 
         for (int i = 0; i < 10; i++) {
@@ -1017,8 +1016,7 @@ public class TableFilterExampleOld extends JFrame {
     void setCountryComparator(boolean set) {
         if ((tableModel != null)
                 && (getColumnView(TestTableModel.COUNTRY) != -1)) {
-            int                       column = tableModel.getColumn(
-                    TestTableModel.COUNTRY);
+            int column = tableModel.getColumn(TestTableModel.COUNTRY);
             Comparator<TestData.Flag> comp = set ? new TestData.RedComparator()
                                                  : null;
             filterHeader.getFilterEditor(column).setComparator(comp);
@@ -1033,9 +1031,9 @@ public class TableFilterExampleOld extends JFrame {
                 .getColumn(countryColumn)
                 .setCellRenderer(new FlagRenderer());
 
-            int     column = tableModel.getColumn(TestTableModel.COUNTRY);
+            int column = tableModel.getColumn(TestTableModel.COUNTRY);
             boolean set = true;
-            JMenu   menu = (JMenu) getMenu(filtersMenu, TestTableModel.COUNTRY,
+            JMenu menu = (JMenu) getMenu(filtersMenu, TestTableModel.COUNTRY,
                     false);
             if (menu != null) {
                 JCheckBoxMenuItem box = (JCheckBoxMenuItem) getMenu(menu,
@@ -1078,8 +1076,8 @@ public class TableFilterExampleOld extends JFrame {
                 .setCellRenderer(new TableCellRenderer() {
                         TableCellRenderer delegate = table.getDefaultRenderer(
                                 Boolean.class);
-                        Border            redBorder = BorderFactory
-                            .createLineBorder(Color.red);
+                        Border redBorder = BorderFactory.createLineBorder(
+                                Color.red);
 
                         public Component getTableCellRendererComponent(
                             JTable  table,
@@ -1091,8 +1089,7 @@ public class TableFilterExampleOld extends JFrame {
                             JComponent c = (JComponent)
                                 delegate.getTableCellRendererComponent(table,
                                     value, isSelected, hasFocus, row, column);
-                            int        modelRow =
-                                ((TableModelFilter) table.getModel())
+                            int modelRow = ((TableModelFilter) table.getModel())
                                 .convertRowIndexToModel(row);
                             if (tableModel.isModified(
                                     tableModel.getRow(modelRow))) {
@@ -1112,7 +1109,7 @@ public class TableFilterExampleOld extends JFrame {
         int maleColumn = tableModel.getColumn(TestTableModel.MALE);
 
         if (maleColumn != -1) {
-            IFilterEditor     editor = filterHeader.getFilterEditor(maleColumn);
+            IFilterEditor editor = filterHeader.getFilterEditor(maleColumn);
             Set<CustomChoice> choices = new HashSet<CustomChoice>();
             if (useMaleCustomChoices) {
                 // specific code.
@@ -1127,7 +1124,7 @@ public class TableFilterExampleOld extends JFrame {
                     @Override public RowFilter getFilter(IFilterEditor fe) {
                         return new RowFilter() {
                             @Override public boolean include(Entry entry) {
-                                int      row = (Integer) entry.getIdentifier();
+                                int row = (Integer) entry.getIdentifier();
                                 TestData td = tableModel.getRow(row);
 
                                 return td.male || tableModel.isModified(td);
@@ -1141,7 +1138,7 @@ public class TableFilterExampleOld extends JFrame {
                     @Override public RowFilter getFilter(IFilterEditor fe) {
                         return new RowFilter() {
                             @Override public boolean include(Entry entry) {
-                                int      row = (Integer) entry.getIdentifier();
+                                int row = (Integer) entry.getIdentifier();
                                 TestData td = tableModel.getRow(row);
 
                                 return !td.male || tableModel.isModified(td);
@@ -1180,8 +1177,8 @@ public class TableFilterExampleOld extends JFrame {
 
                         private static final long serialVersionUID =
                             8042527267257156699L;
-                        Format                    parser =
-                            filterHeader.getParserModel().getFormat(Date.class);
+                        Format parser = filterHeader.getParserModel()
+                            .getFormat(Date.class);
 
                         @Override public Component getTableCellRendererComponent(
                             JTable  table,
@@ -1277,13 +1274,12 @@ public class TableFilterExampleOld extends JFrame {
                     use = UIManager.getLookAndFeel().getDisabledIcon(c, icon);
                 }
 
-                Font        font = editor.getLook()
+                Font font = editor.getLook()
                         .getCustomChoiceDecorator()
                         .getFont(this, editor, isSelected);
                 FontMetrics metrics = g.getFontMetrics(font);
-                int         x = c.getWidth()
-                        - metrics.stringWidth(this.toString());
-                int         y = (c.getHeight() - use.getIconHeight()) / 2;
+                int x = c.getWidth() - metrics.stringWidth(this.toString());
+                int y = (c.getHeight() - use.getIconHeight()) / 2;
                 use.paintIcon(c, g, x, y);
             }
         }

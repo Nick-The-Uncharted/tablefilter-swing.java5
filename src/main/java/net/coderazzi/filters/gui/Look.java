@@ -32,18 +32,17 @@ import java.awt.Font;
 
 /** Class representing the current {@link TableFilterHeader} appearance. */
 public class Look {
-    Color                 background;
-    Color                 disabledBackground;
-    Color                 disabledForeground;
-    Color                 errorForeground;
-    Color                 foreground;
-    Color                 gridColor;
-    Color                 selectionBackground;
-    Color                 selectionForeground;
-    Color                 textSelection;
-    Font                  font;
-    int                   maxVisiblePopupRows =
-        FilterSettings.maxVisiblePopupRows;
+    Color background;
+    Color disabledBackground;
+    Color disabledForeground;
+    Color errorForeground;
+    Color foreground;
+    Color gridColor;
+    Color selectionBackground;
+    Color selectionForeground;
+    Color textSelection;
+    Font font;
+    int maxVisiblePopupRows = FilterSettings.maxVisiblePopupRows;
     CustomChoiceDecorator customChoiceDecorator = FilterSettings
             .newCustomChoiceDecorator();
 
