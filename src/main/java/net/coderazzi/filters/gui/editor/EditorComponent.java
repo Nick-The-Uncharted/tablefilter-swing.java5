@@ -111,7 +111,7 @@ public class EditorComponent extends JTextField {
 
     /**
      * Returns the filter associated to the current content.<br>
-     * Always invoked after {@link #consolidateFilter(boolean)}
+     * Always invoked after {@link #consolidateFilter()}
      */
     public RowFilter getFilter() {
         return controller.getFilter();

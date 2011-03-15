@@ -36,6 +36,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableModel;
 
 import net.coderazzi.filters.AndFilter;
+import net.coderazzi.filters.ComposedFilter;
 import net.coderazzi.filters.Filter;
 import net.coderazzi.filters.IFilter;
 import net.coderazzi.filters.IFilterObserver;
@@ -59,10 +60,6 @@ import net.coderazzi.filters.gui.editor.FilterEditor;
  * model to filter, and the model itself should be an instance of {@link
  * ITableModelFilter}. If this is not the case, the TableFilter automatically
  * creates a (@link ITableModelFilter} and attaches it to the table.</p>
- *
- * <p>It is important, therefore, not to override afterwards the model in the
- * table, or, if this is done, it is needed to invoke {@link
- * FiltersHandler#setModel(TableModel)} on the TableFilter.</p>
  *
  * @author  Luis M Pena - lu@coderazzi.net
  */
