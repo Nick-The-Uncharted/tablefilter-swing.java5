@@ -165,14 +165,17 @@ public class FiltersHandler extends AndFilter
         Class target;
         boolean formatChange = false;
         if (IParserModel.IGNORE_CASE_PROPERTY.equals(evt.getPropertyName())) {
-        	target=null;
+            target = null;
         } else {
             if (IParserModel.FORMAT_PROPERTY.equals(evt.getPropertyName())) {
                 formatChange = true;
-            } else if (!IParserModel.COMPARATOR_PROPERTY.equals(evt.getPropertyName())) {
+            } else if (
+                !IParserModel.COMPARATOR_PROPERTY.equals(
+                        evt.getPropertyName())) {
                 return;
             }
-            //in this case, the target is the affected class
+
+            // in this case, the target is the affected class
             Object cl = evt.getNewValue();
             if (cl instanceof Class) {
                 target = (Class) cl;
@@ -184,7 +187,7 @@ public class FiltersHandler extends AndFilter
         enableNotifications(false);
         for (FilterEditor editor : editors.values()) {
             if (target == null) {
-        		editor.setIgnoreCase(parserModel.isIgnoreCase());
+                editor.setIgnoreCase(parserModel.isIgnoreCase());
             } else if (editor.getModelClass() == target) {
                 if (formatChange) {
                     editor.setFormat(parserModel.getFormat(target));

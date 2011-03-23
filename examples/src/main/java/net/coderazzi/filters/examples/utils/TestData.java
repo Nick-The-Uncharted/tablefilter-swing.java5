@@ -29,7 +29,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -47,24 +46,24 @@ public class TestData {
 
     private static Random random = new Random();
 
-    static final String maleNames[] = { //50 names
-        "alfred", //specifically lower case 
-        "Alvin", "Blake", "BOb", "Brandon", 
-        "BUd", "Burton", //to check ignore case
-        "Charles", "Clark", "Dale", "Damon", "Darren", "Dustin", "edward",
-        "Elton", "Fletcher", "forrester", "Gary", "Harley", "Harold",
-        "Hugh", "James", "Keane", "Kenneth", "Landon", 
-        "Ländon", "LÄndon", //to verify unicode
-        ">Lee", //to verify inclusion of operators on name 
-        "Lincoln", "Maxwell", "Miller", "Nash", "Nelson", "Norman", 
-        "Oswald", "Perry", "Prentice", 
-        "=Ralph", //to verify inclusion of operators on name
-        "Raymond", "Richard", "Robert", "Scott", "Spencer", "Stanley", 
-        "Sut*ton", //to verify impact of wildcards on name
-        "Taylor", "Thorne", "Truman", "Tyler", "Wallace",
-    };
+    static final String maleNames[] = { // 50 names
+            /* specifically lower case >*/ "alfred",
+            /*-*/ "Alvin", "Blake", "BOb", "Brandon",
+            /* to check ignore case */ "BUd", "Burton",
+            /*-*/ "Charles", "Clark", "Dale", "Damon", "Darren", "Dustin",
+            /*-*/ "edward", "Elton", "Fletcher", "forrester", "Gary", "Harley",
+            /*-*/ "Harold", "Hugh", "James", "Keane", "Kenneth", "Landon",
+            /* to verify unicode */ "Ländon", "LÄndon",
+            /* to verify inclusion of operators on name */ ">Lee",
+            /*-*/ "Lincoln", "Maxwell", "Miller", "Nash", "Nelson", "Norman",
+            /*-*/ "Oswald", "Perry", "Prentice",
+            /* to verify inclusion of operators on name */ "=Ralph",
+            /*-*/ "Raymond", "Richard", "Robert", "Scott", "Spencer", "Stanley",
+            /* to verify impact of wildcards on name */ "Sut*ton",
+            /*-*/ "Taylor", "Thorne", "Truman", "Tyler", "Wallace",
+        };
 
-    static final String femaleNames[] = { //49 names
+    static final String femaleNames[] = { // 49 names
             "Aida", "Ashley", "Audrey", "Beverly", "Brenda", "Brook", "Cameron",
             "Carling", "Chelsea", "Dale", "Dawn", "Devon", "Dustin", "Erika",
             "Farrah", "Harmony", "Hazel", "Heather", "Holly", "Jamie", "Joyce",
@@ -77,7 +76,7 @@ public class TestData {
 
     // source:
     // http://en.wikipedia.org/wiki/List_of_most_common_surnames#United_States
-    static final String familyNames[] = { //100 names
+    static final String familyNames[] = { // 100 names
             "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller",
             "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson",
             "White", "Harris", "Martin", "Thompson", "Garcia", "Martinez",
@@ -173,14 +172,6 @@ public class TestData {
             }
 
             return redAmount;
-        }
-    }
-
-    public static class RedComparator implements Comparator<Flag> {
-        public int compare(Flag o1, Flag o2) {
-            double d = o1.getRedAmount() - o2.getRedAmount();
-
-            return (d == 0) ? 0 : ((d < 0) ? -1 : 1);
         }
     }
 

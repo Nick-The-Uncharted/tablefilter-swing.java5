@@ -162,7 +162,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
 
     /** IFilterEditor method. */
     public void setContent(Object content) {
-        setEditorContent((content == null || "".equals(content)) ? CustomChoice.MATCH_ALL : content);
+        setEditorContent(((content == null) || "".equals(content))
+                ? CustomChoice.MATCH_ALL : content);
     }
 
     /** IFilterEditor method. */
@@ -262,7 +263,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     /** IFilterEditor method. */
     public void setComparator(Comparator comparator) {
         // the comparator is used for sorting rendered choices, and for
-    	// comparison operations on the text parser
+        // comparison operations on the text parser
         if ((comparator != this.comparator) && (comparator != null)) {
             this.comparator = comparator;
 
