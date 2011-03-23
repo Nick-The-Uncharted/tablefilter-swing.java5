@@ -119,7 +119,7 @@ public interface IFilterEditor {
      */
     void setComparator(Comparator comparator);
 
-    /** Returns the associated {@link Comparator}, which can nver be null. */
+    /** Returns the associated {@link Comparator}, which is never null. */
     Comparator getComparator();
 
     /** Sets the auto completion flag. */

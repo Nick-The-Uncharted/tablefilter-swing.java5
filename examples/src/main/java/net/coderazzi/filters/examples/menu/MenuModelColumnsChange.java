@@ -27,46 +27,27 @@ package net.coderazzi.filters.examples.menu;
 
 import java.awt.event.ActionEvent;
 
-import javax.swing.JOptionPane;
-
 import net.coderazzi.filters.examples.ActionHandler;
 
 
-/** Change width or model directly. */
-public class MenuModelChange extends AbstractMenuAction {
+/** Change model width or shuffle model structure. */
+public class MenuModelColumnsChange extends AbstractMenuAction {
 
     private static final long serialVersionUID = 9137226745345048519L;
 
-    private int newModelRows;
+    private boolean shuffle;
 
-    public MenuModelChange(ActionHandler main, int modelRows) {
-        super(modelRows==-1 ? "Change rows number ..." : "Use new model ...", main);
-        this.newModelRows = modelRows;
+    public MenuModelColumnsChange(ActionHandler main, boolean shuffle) {
+        super(shuffle? "Shuffle model structure" : "Change model width", main);
+        this.shuffle = shuffle;
     }
 
     public void actionPerformed(ActionEvent e) {
-    	String rows=null;
-    	try{
-	        if (newModelRows==-1) {
-	        	rows = JOptionPane.showInputDialog(main.getJFrame(), 
-	        			"Number of rows:");
-	        	if (rows!=null){
-        			int iRows = Integer.valueOf(rows);
-    				main.getTableModel().updateData(iRows);
-	        	}
-	        } else {
-	        	rows = JOptionPane.showInputDialog(main.getJFrame(), 
-	        			"Number of rows:", new Integer(newModelRows));
-	        	if (rows!=null){
-        			newModelRows = Integer.valueOf(rows);
-        			main.initTableModel(newModelRows);
-	        	}
-	        }
-		}
-		catch(NumberFormatException ex){
-			JOptionPane.showMessageDialog(main.getJFrame(), 
-					"Invalid integer: "+rows);
-		}
+        if (shuffle) {
+            main.getTableModel().shuffleModel();
+        } else {
+        	//change model width
+            main.getTableModel().changeModel(main.getTable());
+        } 
     }
-
 }
