@@ -471,6 +471,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     void popupSelection(Object selection) {
         if (selection != null) {
             setEditorContent(selection);
+            filter.consolidateFilter(); //equivalent to press enter
         }
     }
 
