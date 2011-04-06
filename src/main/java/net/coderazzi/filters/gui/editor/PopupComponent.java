@@ -31,15 +31,12 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-
 import java.text.Format;
-
 import java.util.Collection;
 import java.util.Comparator;
 
@@ -51,7 +48,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -167,9 +163,7 @@ abstract class PopupComponent implements PopupMenuListener {
         prepareGui();
         setPopupFocused(false);
 
-        if (editor.isValid()) {
-            editorBoundsWatcher.displayPopup(editor);
-        }
+        editorBoundsWatcher.displayPopup(editor);
 
         // Not yet knowing the focus, but the call to select (immediately after,
         // always), takes care of it
@@ -495,10 +489,11 @@ abstract class PopupComponent implements PopupMenuListener {
     }
 
     /** Configures the popup panes to have the editor width. */
-    void reconfigurePanes(Component editor) {
+    void showPopup(Component editor) {
         int width = editor.getParent().getWidth() - 1;
         configurePaneSize(choicesScrollPane, width);
         configurePaneSize(historyScrollPane, width);
+        popup.show(editor, -editor.getLocation().x - 1, editor.getHeight());
     }
 
     /** Configures the passed pane to have the given preferred width. */
@@ -686,7 +681,7 @@ abstract class PopupComponent implements PopupMenuListener {
     /** Class to track changes in position or size on the popup's editor. */
     final class EditorBoundsWatcher extends ComponentAdapter {
 
-        private Component ed;
+        private Component editor;
 
         /**
          * Displays or hides the popup, associated to the given editor.
@@ -696,20 +691,19 @@ abstract class PopupComponent implements PopupMenuListener {
          * @return  true if editor is null and the popup was visible
          */
         public boolean displayPopup(Component editor) {
-            if (editor != ed) {
-                if (ed != null) {
-                    ed.removeComponentListener(this);
+            if (editor != this.editor) {
+                if (this.editor != null) {
+                	this.editor.removeComponentListener(this);
                 }
 
-                ed = editor;
-                if (ed != null) {
-                    ed.addComponentListener(this);
+                if (editor != null) {
+                    editor.addComponentListener(this);
                 }
             }
 
-            if (ed != null) {
-                reconfigurePanes(ed);
-                popup.show(ed, -ed.getLocation().x - 1, ed.getHeight());
+            this.editor = editor;
+            if (editor != null) {
+                showPopup(editor);
             } else if (popup.isVisible()) {
                 popup.setVisible(false);
                 return true;
@@ -720,13 +714,7 @@ abstract class PopupComponent implements PopupMenuListener {
 
         private void handleChange() {
             if (popup.isVisible()) {
-                Point p = new Point(-ed.getLocation().x - 1, ed.getHeight());
-                SwingUtilities.convertPointToScreen(p, ed);
-                popup.setLocation(p);
-                reconfigurePanes(ed);
-                popup.revalidate();
-                popup.setSize(popup.getPreferredSize().width,
-                    popup.getHeight());
+                showPopup(editor);
             } else {
                 displayPopup(null);
             }
