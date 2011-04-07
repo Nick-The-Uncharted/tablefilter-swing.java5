@@ -112,7 +112,7 @@ public class Parser implements IParser {
                 op = wildcardOperand;
             }
 
-            return op.create(this, matcher.group(3));
+            return op.create(this, matcher.group(2).trim());
         }
 
         return null;
@@ -121,6 +121,7 @@ public class Parser implements IParser {
     /** {@link IParser} interface. */
     public InstantFilter parseInstantText(String expression)
                                    throws ParseException {
+    	expression = expression.trim();
         Matcher matcher = expressionMatcher.matcher(expression);
         if (matcher.matches()) {
             // all expressions match!
@@ -131,7 +132,7 @@ public class Parser implements IParser {
             }
 
             InstantFilter ret = new InstantFilter();
-            ret.filter = op.create(this, matcher.group(3));
+            ret.filter = op.create(this, matcher.group(2));
             ret.expression = (op == instantOperand)
                 ? instantOperand.getAppliedExpression(expression) : expression;
 
@@ -143,6 +144,7 @@ public class Parser implements IParser {
 
     /** {@link IParser} interface. */
     public String escape(String expression) {
+    	expression = expression.trim();
         Matcher matcher = expressionMatcher.matcher(expression);
         if (matcher.matches()) {
             String operator = matcher.group(1);
@@ -481,7 +483,7 @@ public class Parser implements IParser {
 
     static {
         expressionMatcher = Pattern.compile(
-                "^(>=|<=|<>|!~|~~|>|<|=|~|!)?(\\s*(.*))$", Pattern.MULTILINE);
+			"^\\s*(>=|<=|<>|!~|~~|>|<|=|~|!)?\\s*(.*)$");
 
         operands = new HashMap<String, IOperand>();
         operands.put("~~", new REOperand(true));
