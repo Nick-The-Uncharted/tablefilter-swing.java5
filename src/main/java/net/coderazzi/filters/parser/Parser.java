@@ -115,7 +115,7 @@ public class Parser implements IParser {
             return op.create(this, matcher.group(2).trim());
         }
 
-        return null;
+        throw new ParseException("", 0);
     }
 
     /** {@link IParser} interface. */
@@ -139,7 +139,7 @@ public class Parser implements IParser {
             return ret;
         }
 
-        return null;
+        throw new ParseException("", 0);
     }
 
     /** {@link IParser} interface. */
@@ -519,7 +519,7 @@ public class Parser implements IParser {
         instantOperand = new WildcardOperand();
     }
 
-    /** Helper class to deal with null formats. */
+    /** Helper class to deal with null formats. It also trims the output. */
     static class FormatWrapper {
         Format format;
 
@@ -528,8 +528,8 @@ public class Parser implements IParser {
         }
 
         public String format(Object o) {
-            return (format == null) ? ((o == null) ? "" : o.toString())
-                                    : format.format(o);
+            return (format == null) ? ((o == null) ? "" : o.toString().trim())
+                                    : format.format(o).trim();
         }
 
         public Object parseObject(String content) throws ParseException {
