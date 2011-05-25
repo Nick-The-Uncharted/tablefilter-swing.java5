@@ -33,8 +33,10 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import java.text.Format;
 import java.text.ParseException;
+
 import java.util.Comparator;
 import java.util.regex.Pattern;
 
@@ -74,7 +76,7 @@ class EditorComponent extends JTextField {
     boolean autoCompletion;
     FilterEditor filterEditor;
     PopupComponent popup;
-    static final Pattern newLinePattern = Pattern.compile("[\n\r\t\f]"); 
+    static final Pattern newLinePattern = Pattern.compile("[\n\r\t\f]");
 
     public EditorComponent(FilterEditor   editor,
                            PopupComponent popupComponent) {
@@ -422,13 +424,18 @@ class EditorComponent extends JTextField {
                 text = ((CustomChoice) content).toString();
                 match.content = content;
             } else {
-                Format format = filterEditor.getFormat();
-                text = (format == null) ? content.toString()
-                                        : format.format(content);
+                if (content instanceof String) {
+                    text = (String) content;
+                } else {
+                    Format fmt = filterEditor.getFormat();
+                    text = (fmt == null) ? content.toString()
+                                         : fmt.format(content);
+                }
+
                 match.content = text;
             }
 
-            match.exact = true; //avoid interpretation
+            match.exact = true; // avoid interpretation
             setEditorText(text);
             updateFilter(text, match, false);
             activateCustomDecoration();
@@ -711,15 +718,15 @@ class EditorComponent extends JTextField {
                                    throws BadLocationException {
                 int moveCaretLeft = 0;
                 boolean singleCharacter = text.length() == 1;
-                //avoid new lines, etc, see
-                //http://code.google.com/p/tablefilter-swing/issues/detail?id=13
-            	text = newLinePattern.matcher(text).replaceAll(" ");
+                // avoid new lines, etc, see
+                // http://code.google.com/p/tablefilter-swing/issues/detail?id=13
+                text = newLinePattern.matcher(text).replaceAll(" ");
                 if (autoCompletion && userUpdate && singleCharacter) {
                     String now = getText();
                     // autocompletion is only triggered if the user inputs
                     // a character at the end of the current text
                     if (now.length() == (offset + length)) {
-                    	String begin = now.substring(0, offset) + text;
+                        String begin = now.substring(0, offset) + text;
                         String completion = popup.getCompletion(begin);
                         text += completion;
                         moveCaretLeft = completion.length();
@@ -833,12 +840,12 @@ class EditorComponent extends JTextField {
                                           String       text,
                                           AttributeSet attrs)
                                    throws BadLocationException {
-            	if (!userUpdate){
-            		//content set from outside, go with it
-            		super.replace(fb, offset, length, text, attrs);
-            		return;
-            	}
-            	
+                if (!userUpdate) {
+                    // content set from outside, go with it
+                    super.replace(fb, offset, length, text, attrs);
+                    return;
+                }
+
                 String buffer = getText();
                 String newContentBegin = buffer.substring(0, offset) + text;
                 String newContent = newContentBegin
@@ -865,8 +872,8 @@ class EditorComponent extends JTextField {
                         // be null
                         if ((proposal.length() < newContentBegin.length())
                                 || (0
-                                    != popup.getStringComparator()
-                                    .compare(newContentBegin,
+                                    != popup.getStringComparator().compare(
+                                        newContentBegin,
                                         proposal.substring(0,
                                             newContentBegin.length())))) {
                             return;
@@ -874,7 +881,8 @@ class EditorComponent extends JTextField {
                     }
                 }
 
-                int caret = 1 + Math.min(getCaret().getDot(), getCaret().getMark());
+                int caret = 1
+                        + Math.min(getCaret().getDot(), getCaret().getMark());
 
                 super.replace(fb, 0, buffer.length(), proposal, attrs);
 
@@ -905,8 +913,7 @@ class EditorComponent extends JTextField {
 
                 String proposal = match.content.toString();
                 // on text content, this comparator cannot be null
-                Comparator<String> comparator =
-                    popup.getStringComparator();
+                Comparator<String> comparator = popup.getStringComparator();
                 if (!match.exact
                         || (0 != comparator.compare(newContent, proposal))) {
                     if (
@@ -947,8 +954,7 @@ class EditorComponent extends JTextField {
                 moveCaretPosition(Math.min(len, caret));
                 deactivateCustomDecoration();
 
-                if (userUpdate && instantFiltering
-                        && (proposal != buffer)) {
+                if (userUpdate && instantFiltering && (proposal != buffer)) {
                     match.exact = true;
                     updateFilter(proposal, match, true);
                 }
