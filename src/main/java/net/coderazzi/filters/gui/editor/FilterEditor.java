@@ -92,6 +92,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     private Comparator comparator;
     private Class modelClass;
     private boolean ignoreCase;
+    private boolean enabledUI=true;
 
     FilterArrowButton downButton = new FilterArrowButton();
     EditorFilter filter = new EditorFilter();
@@ -210,6 +211,17 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         return (customChoices == null)
             ? new HashSet<CustomChoice>()
             : new HashSet<CustomChoice>(customChoices);
+    }
+
+    /** IFilterEditor method. */
+    public void setUserInteractionEnabled(boolean enable){
+    	enabledUI = enable;
+    	setFilterEnabled(filter.isEnabled());
+    }
+    
+    /** IFilterEditor method. */
+    public boolean isUserInteractionEnabled() {
+    	return enabledUI;
     }
 
     /** IFilterEditor method. */
@@ -369,11 +381,14 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     }
 
     /** Enables / disables the editor, invoked from the filter itself. */
-    void setEditorEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        downButton.setEnabled(enabled);
-        popup.getFilterRenderer().setEnabled(enabled);
-        editor.setEnabled(enabled);
+    void setFilterEnabled(boolean enabled) {
+    	enabled = enabled && enabledUI;
+    	if (enabled != isEnabled()){
+	        super.setEnabled(enabled);
+	        downButton.setEnabled(enabled);
+	        popup.getFilterRenderer().setEnabled(enabled);
+	        editor.setEnabled(enabled);
+    	}
     }
 
     /** Method invoked by the EditorComponent to notify a filter update. */
@@ -817,7 +832,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
 
         @Override public void setEnabled(boolean enable) {
             if (enable != isEnabled()) {
-                setEditorEnabled(enable);
+            	setFilterEnabled(enable);
                 delegateFilter = enable ? editor.getFilter() : null;
 
                 super.setEnabled(enable);
