@@ -40,8 +40,6 @@ import net.coderazzi.filters.examples.TableSorter;
 
 public class MaleRenderer implements TableCellRenderer {
 
-    private static final long serialVersionUID = 8042527267257156699L;
-
     private ActionHandler main;
     private TableSorter tableSorter;
     private Border redBorder;
