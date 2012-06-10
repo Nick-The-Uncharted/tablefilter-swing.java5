@@ -112,8 +112,7 @@ public class FiltersHandler extends AndFilter
     }
 
     /**
-     * Method to set the associated table. If the table had not defined its own
-     * {@link javax.swing.RowSorter}, the default one is automatically created.
+     * Method to set the associated table. 
      */
     public void setTable(JTable table) {
         choicesHandler.setInterrupted(true);
