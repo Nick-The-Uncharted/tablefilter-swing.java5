@@ -60,6 +60,8 @@ public class MenuMaleCustomChoices extends AbstractMenuCheckBoxAction {
             // filter out modified values
             CustomChoice obsoleteChoice = new CustomChoice("True +") {
 
+                private static final long serialVersionUID = 5531933637893891168L;
+
                 @Override public RowFilter getFilter(IFilterEditor fe) {
                     return new RowFilter() {
                         @Override public boolean include(Entry entry) {
@@ -74,6 +76,8 @@ public class MenuMaleCustomChoices extends AbstractMenuCheckBoxAction {
             };
 
             CustomChoice nonObsoleteChoice = new CustomChoice("False +") {
+
+                private static final long serialVersionUID = -4183027765686996202L;
 
                 @Override public RowFilter getFilter(IFilterEditor fe) {
                     return new RowFilter() {

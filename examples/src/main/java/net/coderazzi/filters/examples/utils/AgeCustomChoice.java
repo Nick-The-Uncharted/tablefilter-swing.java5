@@ -10,6 +10,8 @@ import net.coderazzi.filters.gui.IFilterEditor;
 
 public class AgeCustomChoice extends CustomChoice {
 
+    private static final long serialVersionUID = -4580882606646752756L;
+    
     int min;
     int max;
 

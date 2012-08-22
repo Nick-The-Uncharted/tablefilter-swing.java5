@@ -39,6 +39,7 @@ import java.awt.event.MouseMotionListener;
 import java.text.Format;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -297,6 +298,14 @@ abstract class PopupComponent implements PopupMenuListener {
     /** @see  IFilterEditor#getMaxHistory() */
     public int getMaxHistory() {
         return historyModel.getMaxHistory();
+    }
+    
+    public void setHistory(List<Object> history){
+        historyModel.initialize(history);    	
+    }
+
+    public List<Object> getHistory(){
+    	return historyModel.getShownHistory();
     }
 
     /**
