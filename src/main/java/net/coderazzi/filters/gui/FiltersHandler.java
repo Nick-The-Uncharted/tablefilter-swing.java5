@@ -80,8 +80,8 @@ public class FiltersHandler extends AndFilter
      */
     private boolean pendingNotifications;
 
-    /** The autoChoices mode.* */
-    private AutoChoices autoChoices = FilterSettings.autoChoices;
+    /** The autoChoices mode.*/
+    private AutoChoices autoChoices;
 
     /** All the editors, mapped by their filter position. */
     private Map<Integer, FilterEditor> editors =
@@ -100,15 +100,17 @@ public class FiltersHandler extends AndFilter
     private Filter applyingFilter;
 
     /** Only constructor. */
-    FiltersHandler() {
-
-        // create an observer instance to notify the associated table when there
+    FiltersHandler(AutoChoices mode, IParserModel parserModel) {
+    	
+    	autoChoices = mode;
+    	// create an observer instance to notify the associated table when there
         // are filter changes.
         addFilterObserver(new IFilterObserver() {
                 public void filterUpdated(IFilter obs) {
                     notifyUpdatedFilter();
                 }
             });
+        setParserModel(parserModel);
     }
 
     /**
