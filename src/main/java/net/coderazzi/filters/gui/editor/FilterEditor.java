@@ -295,6 +295,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     /** IFilterEditor method. */
     public void setChoicesComparator(Comparator comparator) {
     	if (comparator != null){
+    		this.alphabeticalChoiceOrder = false;
     		this.choicesComparator = comparator;
     		formatOrComparatorUpdated();
     	}
