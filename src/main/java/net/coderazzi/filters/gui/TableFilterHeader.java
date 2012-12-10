@@ -138,6 +138,9 @@ public class TableFilterHeader extends JPanel {
     /** Flag to handle auto completion support. */
     boolean autoCompletionEnabled = FilterSettings.autoCompletion;
 
+    /** Flag to handle alphabetical choice order. */
+    boolean alphabeticalChoiceOrder = FilterSettings.alphabeticalChoiceOrder;
+
     /** This is the total max number of visible rows (history PLUS choices). */
     int maxHistory = FilterSettings.maxPopupHistory;
 
@@ -314,6 +317,29 @@ public class TableFilterHeader extends JPanel {
                 }
             }
         }
+    }
+
+    /** 
+     * Modifies the flag to display the choices in alphabetical order -for
+     * editors without {@link ChoiceRenderer} in place.<br>
+     * @see IFilterEditor#setAlphabeticalOrderOnChoices(boolean)
+     */
+    public void setAlphabeticalOrderOnChoices(boolean enable){
+    	if (alphabeticalChoiceOrder != enable) {
+    		alphabeticalChoiceOrder = enable;
+            if (columnsController != null) {
+                for (FilterEditor fe : columnsController) {
+                    fe.setAlphabeticalOrderOnChoices(enable);
+                }
+            }
+    	}
+    }
+    
+    /**
+     * Returns true if the choices are listed alphabetically.<br>
+     * @see IFilterEditor#setAlphabeticalOrderOnChoices(boolean) */
+    public boolean hasAlphabeticalOrderOnChoices() {
+    	return alphabeticalChoiceOrder;
     }
 
     /** Returns true if instant filtering is enabled. */
@@ -885,7 +911,8 @@ public class TableFilterHeader extends JPanel {
         /** Creates an editor for the given column. */
         private FilterEditor createEditor(int modelColumn, boolean enableIt) {
             FilterEditor ret = new FilterEditor(filtersHandler, modelColumn,
-                    getTable().getModel().getColumnClass(modelColumn), look);
+                    getTable().getModel().getColumnClass(modelColumn), 
+                    alphabeticalChoiceOrder, look);
             ret.setMaxHistory(maxHistory);
             ret.setInstantFiltering(instantFilteringEnabled);
             ret.setAutoCompletion(autoCompletionEnabled);

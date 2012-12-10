@@ -44,6 +44,10 @@ public class FilterSettings {
 
     /** Properties must be defined with this prefix. */
     public final static String PROPERTIES_PREFIX = "net.coderazzi.filters.";
+    
+    /** Whether to enable adaptive choices, true by default. */
+    public static boolean alphabeticalChoiceOrder = 
+    		Boolean.parseBoolean(getString("AlphabeticalChoicesOrder", "true"));
 
     /** If and how to provide content to the editor field's choices. */
     public static AutoChoices autoChoices;
