@@ -142,7 +142,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         add(editor, BorderLayout.CENTER);
 
         setLook(look);
-        formatUpdated();
+        formatOrComparatorUpdated();
     }
 
     /** IFilterEditor method. */
@@ -247,7 +247,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     public void setIgnoreCase(boolean set) {
         if (ignoreCase != set) {
             ignoreCase = set;
-            formatUpdated();
+            formatOrComparatorUpdated();
         }
     }
 
@@ -267,9 +267,9 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             if ((format != null) && (comparator instanceof DateComparator)
                     && Date.class.isAssignableFrom(modelClass)) {
                 setComparator(DateComparator.getDateComparator(format));
+            } else {
+            	formatOrComparatorUpdated();
             }
-
-            formatUpdated();
         }
     }
 
@@ -282,11 +282,8 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     public void setComparator(Comparator comparator) {
         if ((comparator != this.comparator) && (comparator != null)) {
             this.comparator = comparator;
-            if (!hasAlphabeticalOrderOnChoices()){
-            	setChoicesComparator(comparator);
-            } else {
-            	comparatorUpdated();
-            }
+            choicesComparator = deduceChoicesComparator(getRenderer()!=null);
+        	formatOrComparatorUpdated();
         }
     }
 
@@ -295,11 +292,11 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         return comparator;
     }
 
-    
+    /** IFilterEditor method. */
     public void setChoicesComparator(Comparator comparator) {
     	if (comparator != null){
     		this.choicesComparator = comparator;
-            comparatorUpdated();
+    		formatOrComparatorUpdated();
     	}
     }
     
@@ -314,13 +311,13 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     	Comparator oldComparator = getChoicesComparator();
     	choicesComparator = deduceChoicesComparator(getRenderer()!=null);
     	if (!getChoicesComparator().equals(oldComparator)){
-    		comparatorUpdated();
+    		formatOrComparatorUpdated();
     	}
     }
     
     /** IFilterEditor method. */
     public boolean hasAlphabeticalOrderOnChoices() {
-    	return alphabeticalChoiceOrder;
+    	return choicesComparator == getStringComparator();
     }
     
     /** IFilterEditor method. */
@@ -468,23 +465,19 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         }
     }
 
-    private void formatUpdated() {
-        if (getRenderer() == null) {
-            popup.setStringContent(format, getChoicesComparator(), 
-            		getStringComparator());
-            editor.updateParser();
-            requestChoices();
-        }
-    }
-    
-    private void comparatorUpdated() {
+    private void formatOrComparatorUpdated() {
         ChoiceRenderer lcr = getRenderer();
+        boolean updated;
         if (lcr == null) {
+            updated = popup.setStringContent(format, getChoicesComparator(), 
+            		getStringComparator());
             editor.updateParser();
         } else {
-            popup.setRenderedContent(lcr, getChoicesComparator(), 
+            updated = popup.setRenderedContent(lcr, getChoicesComparator(), 
             		getStringComparator());
-            requestChoices();
+        }
+        if (updated) {
+        	requestChoices();
         }
     }
     
@@ -497,7 +490,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
      */
     private Comparator deduceChoicesComparator(boolean hasRenderer) {
     	if (!hasRenderer) {
-	    	if (hasAlphabeticalOrderOnChoices() || 
+	    	if (alphabeticalChoiceOrder || 
 	    		modelClass.equals(String.class) || 
 	    		modelClass.equals(Boolean.class) ||
 	    		modelClass.isEnum()){
