@@ -42,6 +42,7 @@ import net.coderazzi.filters.examples.utils.DateRenderer;
 import net.coderazzi.filters.examples.utils.FlagRenderer;
 import net.coderazzi.filters.examples.utils.TestTableModel;
 import net.coderazzi.filters.gui.AutoChoices;
+import net.coderazzi.filters.gui.HtmlChoiceRenderer;
 import net.coderazzi.filters.gui.IFilterEditor;
 import net.coderazzi.filters.gui.TableFilterHeader;
 
@@ -66,6 +67,8 @@ public class BaseExample extends JFrame {
     private void setupHeader(TableFilterHeader header){
     	getEditor(header, TestTableModel.COUNTRY, new FlagRenderer())
     		.setRenderer(new FlagRenderer());
+    	getEditor(header, TestTableModel.HTML_COUNTRY, null)
+    		.setRenderer(new HtmlChoiceRenderer());
     	getEditor(header, TestTableModel.NOTE, null)
 			.setEditable(false);
     	getEditor(header, TestTableModel.AGE, new CenteredRenderer())
