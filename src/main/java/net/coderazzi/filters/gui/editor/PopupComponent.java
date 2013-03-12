@@ -88,12 +88,9 @@ abstract class PopupComponent implements PopupMenuListener {
     JList historyList;
 
 
-    public PopupComponent(IFilterEditor editor, 
-            Format format,
-            Comparator choicesComparator,
-            Comparator stringComparator) {
+    public PopupComponent(IFilterEditor editor) {
+        choicesModel = new ChoicesListModel();
         historyModel = new HistoryListModel();
-        choicesModel = ChoicesListModel.getCustom(null, format, false, choicesComparator, stringComparator);         		
         createGui(editor);
     }
 
@@ -176,27 +173,21 @@ abstract class PopupComponent implements PopupMenuListener {
 
     /** Specifies that the content requires no conversion to strings. */
     public void setRenderedContent(ChoiceRenderer renderer,
-                                   Comparator     choicesComparator,
-                                   Comparator     stringComparator) {
+                                   Comparator     classComparator) {
         hide();
         listRenderer.setUserRenderer(renderer);
-        ChoicesListModel newModel = ChoicesListModel.getCustom(choicesModel, null, true, choicesComparator, stringComparator);
-        if (newModel!=choicesModel){
-	        historyModel.setStringContent(null);
-            choicesList.setModel(choicesModel = newModel);        	
+        if (choicesModel.setRenderedContent(classComparator)) {
+            historyModel.setStringContent(null);
         }
     }
 
     /** Specifies that the content is to be handled as strings. */
     public void setStringContent(Format             format,
-    							 Comparator         choicesComparator,
                                  Comparator<String> stringComparator) {
         hide();
         listRenderer.setUserRenderer(null);
-        ChoicesListModel newModel = ChoicesListModel.getCustom(choicesModel, format, false, choicesComparator, stringComparator);
-        if (newModel!=choicesModel){
+        if (choicesModel.setStringContent(format, stringComparator)) {
             historyModel.setStringContent(stringComparator);
-            choicesList.setModel(choicesModel = newModel);        	
         }
     }
 
