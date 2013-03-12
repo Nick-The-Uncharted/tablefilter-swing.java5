@@ -90,6 +90,11 @@ class ChoicesListModel extends AbstractListModel {
         fireIntervalRemoved(this, 1, size);
     }
 
+    /** Returns the current choices. */
+    public Collection<?> getChoices() {
+        return content;
+    }
+
     /** @see  PopupComponent#selectBestMatch(Object, boolean) */
     public ChoiceMatch getClosestMatch(Object hint, boolean exact) {
         return (useFormatter && (hint instanceof String))
