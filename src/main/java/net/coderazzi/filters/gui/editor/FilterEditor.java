@@ -142,7 +142,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         add(editor, BorderLayout.CENTER);
 
         setLook(look);
-        formatOrComparatorUpdated();
+        formatUpdated();
     }
 
     /** IFilterEditor method. */
@@ -247,7 +247,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     public void setIgnoreCase(boolean set) {
         if (ignoreCase != set) {
             ignoreCase = set;
-            formatOrComparatorUpdated();
+            formatUpdated();
         }
     }
 
@@ -267,9 +267,9 @@ public class FilterEditor extends JComponent implements IFilterEditor {
             if ((format != null) && (comparator instanceof DateComparator)
                     && Date.class.isAssignableFrom(modelClass)) {
                 setComparator(DateComparator.getDateComparator(format));
-            } else {
-            	formatOrComparatorUpdated();
             }
+
+            formatUpdated();
         }
     }
 
@@ -282,8 +282,11 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     public void setComparator(Comparator comparator) {
         if ((comparator != this.comparator) && (comparator != null)) {
             this.comparator = comparator;
-            choicesComparator = deduceChoicesComparator(getRenderer()!=null);
-        	formatOrComparatorUpdated();
+            if (!hasAlphabeticalOrderOnChoices()){
+            	setChoicesComparator(comparator);
+            } else {
+            	comparatorUpdated();
+            }
         }
     }
 
@@ -292,11 +295,11 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         return comparator;
     }
 
-    /** IFilterEditor method. */
+    
     public void setChoicesComparator(Comparator comparator) {
     	if (comparator != null){
     		this.choicesComparator = comparator;
-    		formatOrComparatorUpdated();
+            comparatorUpdated();
     	}
     }
     
@@ -311,13 +314,13 @@ public class FilterEditor extends JComponent implements IFilterEditor {
     	Comparator oldComparator = getChoicesComparator();
     	choicesComparator = deduceChoicesComparator(getRenderer()!=null);
     	if (!getChoicesComparator().equals(oldComparator)){
-    		formatOrComparatorUpdated();
+    		comparatorUpdated();
     	}
     }
     
     /** IFilterEditor method. */
     public boolean hasAlphabeticalOrderOnChoices() {
-    	return choicesComparator == getStringComparator();
+    	return alphabeticalChoiceOrder;
     }
     
     /** IFilterEditor method. */
@@ -465,19 +468,23 @@ public class FilterEditor extends JComponent implements IFilterEditor {
         }
     }
 
-    private void formatOrComparatorUpdated() {
-        ChoiceRenderer lcr = getRenderer();
-        boolean updated;
-        if (lcr == null) {
-            updated = popup.setStringContent(format, getChoicesComparator(), 
+    private void formatUpdated() {
+        if (getRenderer() == null) {
+            popup.setStringContent(format, getChoicesComparator(), 
             		getStringComparator());
             editor.updateParser();
-        } else {
-            updated = popup.setRenderedContent(lcr, getChoicesComparator(), 
-            		getStringComparator());
+            requestChoices();
         }
-        if (updated) {
-        	requestChoices();
+    }
+    
+    private void comparatorUpdated() {
+        ChoiceRenderer lcr = getRenderer();
+        if (lcr == null) {
+            editor.updateParser();
+        } else {
+            popup.setRenderedContent(lcr, getChoicesComparator(), 
+            		getStringComparator());
+            requestChoices();
         }
     }
     
@@ -490,7 +497,7 @@ public class FilterEditor extends JComponent implements IFilterEditor {
      */
     private Comparator deduceChoicesComparator(boolean hasRenderer) {
     	if (!hasRenderer) {
-	    	if (alphabeticalChoiceOrder || 
+	    	if (hasAlphabeticalOrderOnChoices() || 
 	    		modelClass.equals(String.class) || 
 	    		modelClass.equals(Boolean.class) ||
 	    		modelClass.isEnum()){
